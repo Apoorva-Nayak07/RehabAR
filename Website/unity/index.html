@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | RehabAR_Unity</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+</head>
+
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+    <div id="unity-warning"> </div>
+    <div id="unity-footer">
+      <div id="unity-webgl-logo"></div>
+      <div id="unity-fullscreen-button"></div>
+      <div id="unity-build-title">RehabAR_Unity</div>
+    </div>
+  </div>
+  <script>
+
+    var container = document.querySelector("#unity-container");
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    var warningBanner = document.querySelector("#unity-warning");
+
+    function unityShowBanner(msg, type) {
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/Unity_Build.loader.js";
+    var config = {
+      dataUrl: buildUrl + "/Unity_Build.data.gz",
+      frameworkUrl: buildUrl + "/Unity_Build.framework.js.gz",
+      codeUrl: buildUrl + "/Unity_Build.wasm.gz",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "RehabAR_Unity",
+      productVersion: "0.1",
+      showBanner: unityShowBanner,
+    };
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+      container.className = "unity-mobile";
+      canvas.className = "unity-mobile";
+    } else {
+      canvas.style.width = "960px";
+      canvas.style.height = "600px";
+    }
+
+    loadingBar.style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+      }).then((unityInstance) => {
+        loadingBar.style.display = "none";
+        fullscreenButton.onclick = () => {
+          unityInstance.SetFullscreen(1);
+        };
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+
+    document.body.appendChild(script);
+
+  </script>
+
+  <!-- ============================================================
+         REHABFLOW MUSIC WIDGET — bottom-left FAB
+         ============================================================ -->
+
+  <div id="music-fab" onclick="toggleMusicPanel()" title="Music Player">
+    🎵
+    <span id="music-fab-label">Music</span>
+  </div>
+
+  <div id="music-panel">
+    <div class="mp-header">
+      <div class="mp-title">
+        <span id="mp-art">🎵</span>
+        <div>
+          <div id="mp-name">Select a track</div>
+          <div id="mp-artist">RehabFlow Music</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="mp-synth-tag">SYNTH</span>
+        <button class="mp-close" onclick="toggleMusicPanel()">✕</button>
+      </div>
+    </div>
+
+    <canvas id="mp-viz"></canvas>
+
+    <div class="mp-controls">
+      <button class="mp-btn" onclick="mpPrev()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+        </svg>
+      </button>
+      <button class="mp-btn mp-play" id="mp-playbtn" onclick="mpTogglePlay()">
+        <svg id="mp-ico-play" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        <svg id="mp-ico-pause" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+        </svg>
+      </button>
+      <button class="mp-btn" onclick="mpNext()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 18l8.5-6L6 6v12zm8.5-6v6h2V6h-2v6z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="mp-prog-row">
+      <span id="mp-cur">0:00</span>
+      <div class="mp-prog-track" onclick="mpSeek(event)">
+        <div class="mp-prog-fill" id="mp-prog-fill"></div>
+      </div>
+      <span id="mp-tot">0:00</span>
+    </div>
+
+    <div class="mp-vol-row">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+      </svg>
+      <input type="range" id="mp-vol" min="0" max="1" step="0.01" value="0.7" oninput="mpSetVol(this.value)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)">
+        <path
+          d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      </svg>
+    </div>
+
+    <div class="mp-tracklist" id="mp-tracklist"></div>
+  </div>
+
+  <style>
+    /* ── Floating Button — BOTTOM-LEFT ───────────────────── */
+    #music-fab {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      z-index: 9999;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c5cfc, #4a2fc0);
+      color: white;
+      font-size: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(124, 92, 252, 0.55);
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+      gap: 0;
+    }
+
+    #music-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 10px 32px rgba(124, 92, 252, 0.75);
+    }
+
+    #music-fab-label {
+      font-size: 0.48rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      line-height: 1;
+      font-family: system-ui, sans-serif;
+    }
+
+    /* ── Mini Player Panel — opens from BOTTOM-LEFT ──────── */
+    #music-panel {
+      position: fixed;
+      bottom: 100px;
+      left: 28px;
+      z-index: 9998;
+      width: 300px;
+      background: rgba(10, 12, 24, 0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 56px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(124, 92, 252, 0.1);
+      font-family: system-ui, sans-serif;
+      color: white;
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #music-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .mp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .mp-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mp-title span {
+      font-size: 1.6rem;
+      width: 40px;
+      height: 40px;
+      background: rgba(124, 92, 252, 0.15);
+      border: 1px solid rgba(124, 92, 252, 0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #mp-name {
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+
+    #mp-artist {
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.35);
+      margin-top: 1px;
+    }
+
+    #mp-synth-tag {
+      font-size: 0.54rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      background: rgba(124, 92, 252, 0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(124, 92, 252, 0.3);
+    }
+
+    .mp-close {
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: rgba(255, 255, 255, 0.4);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .mp-close:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+    }
+
+    #mp-viz {
+      display: block;
+      width: 100%;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(124, 92, 252, 0.05);
+      border: 1px solid rgba(124, 92, 252, 0.1);
+      margin-bottom: 12px;
+    }
+
+    .mp-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mp-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: rgba(255, 255, 255, 0.55);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.17s;
+    }
+
+    .mp-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .mp-btn.mp-play {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #7c5cfc, #4a2fc0);
+      color: white;
+      box-shadow: 0 4px 16px rgba(124, 92, 252, 0.5);
+    }
+
+    .mp-btn.mp-play:hover {
+      box-shadow: 0 6px 24px rgba(124, 92, 252, 0.75);
+      transform: scale(1.06);
+    }
+
+    .mp-prog-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+
+    .mp-prog-track {
+      flex: 1;
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .mp-prog-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #7c5cfc, #a78bfa);
+      width: 0%;
+      transition: width 0.12s linear;
+      pointer-events: none;
+    }
+
+    .mp-vol-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .mp-vol-row input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .mp-vol-row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #7c5cfc;
+      cursor: pointer;
+      border: 2px solid rgba(10, 12, 24, 0.9);
+    }
+
+    .mp-tracklist {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .mp-tracklist::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .mp-tracklist::-webkit-scrollbar-thumb {
+      background: rgba(124, 92, 252, 0.3);
+      border-radius: 2px;
+    }
+
+    .mp-track-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      font-size: 0.75rem;
+    }
+
+    .mp-track-row:hover {
+      background: rgba(124, 92, 252, 0.1);
+      border-color: rgba(124, 92, 252, 0.2);
+    }
+
+    .mp-track-row.active {
+      background: rgba(124, 92, 252, 0.15);
+      border-color: rgba(124, 92, 252, 0.3);
+    }
+
+    .mp-track-emoji {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .mp-track-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .mp-track-name {
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mp-track-mood {
+      font-size: 0.6rem;
+      color: rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .mp-eq {
+      display: none;
+      align-items: flex-end;
+      gap: 1.5px;
+      width: 14px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .mp-eq span {
+      display: block;
+      width: 2.5px;
+      background: #7c5cfc;
+      border-radius: 1px;
+      animation: mpeq 0.7s ease-in-out infinite;
+    }
+
+    .mp-eq span:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .mp-eq span:nth-child(3) {
+      animation-delay: 0.25s;
+    }
+
+    @keyframes mpeq {
+
+      0%,
+      100% {
+        height: 2px
+      }
+
+      50% {
+        height: 10px
+      }
+    }
+
+    .mp-track-row.active .mp-eq {
+      display: flex;
+    }
+  </style>
+
+  <script>
+    (function () {
+      let mpAC = null, mpMaster = null, mpAnalyser = null;
+      let mpNodes = [], mpGain = null;
+      let mpPlaying = false, mpIdx = 0;
+      let mpProg = null, mpSec = 0;
+      const MP_CYCLE = 300;
+      let mpPanelOpen = false, mpVizStarted = false;
+
+      const MP_TRACKS = [
+        {
+          title: "Ocean Breath", artist: "Binaural Lab", emoji: "🌊", mood: "calm",
+          synth: mpBinaural([{ f: 174, b: 0.5, v: 0.22 }, { f: 285, b: 0.7, v: 0.14 }])
+        },
+        {
+          title: "Morning Stretch", artist: "Ambient Wellness", emoji: "☀️", mood: "calm",
+          synth: mpChordPad({ chords: [[261, 329, 392], [246, 311, 370], [220, 277, 349]], rate: 6, wave: 'sine', flt: 900, v: 0.18 })
+        },
+        {
+          title: "Steady Pulse", artist: "Motion Studio", emoji: "💚", mood: "moderate",
+          synth: mpRhythmic({ bpm: 72, chords: [[261, 329], [246, 311]], v: 0.19 })
+        },
+        {
+          title: "Healing Tide", artist: "Restoration Lab", emoji: "🫧", mood: "calm",
+          synth: mpNoiseDrone({ dFreq: 110, nv: 0.04, dv: 0.18 })
+        },
+        {
+          title: "Moving Forward", artist: "Rehab Beats", emoji: "🌿", mood: "moderate",
+          synth: mpArpeggio({ notes: [261, 294, 329, 349, 392, 440, 494, 523], step: 0.25, wave: 'triangle', flt: 1200, v: 0.15 })
+        },
+        {
+          title: "Power & Grace", artist: "Strength Studio", emoji: "⚡", mood: "energetic",
+          synth: mpRhythmic({ bpm: 96, chords: [[349, 440], [329, 415]], v: 0.22 })
+        },
+        {
+          title: "Deep Restoration", artist: "Serenity Systems", emoji: "🕊️", mood: "calm",
+          synth: mpBinaural([{ f: 136.1, b: 0.3, v: 0.28 }, { f: 174, b: 0.5, v: 0.16 }])
+        },
+        {
+          title: "Mindful Steps", artist: "Wellness Wave", emoji: "🧘", mood: "moderate",
+          synth: mpArpeggio({ notes: [220, 261, 294, 329, 349, 329, 294, 261], step: 0.35, wave: 'sine', flt: 800, v: 0.16 })
+        },
+      ];
+
+      function mpBinaural(layers) {
+        return (ac, out) => {
+          const nodes = [];
+          layers.forEach(({ f, b, v }) => {
+            [0, 1].forEach(si => {
+              const osc = ac.createOscillator(), g = ac.createGain(), pan = ac.createStereoPanner();
+              osc.type = 'sine'; osc.frequency.value = si === 0 ? f : f + b;
+              g.gain.value = v; pan.pan.value = si === 0 ? -0.6 : 0.6;
+              const lfo = ac.createOscillator(), lfoG = ac.createGain();
+              lfo.frequency.value = 0.07 + Math.random() * 0.05; lfoG.gain.value = v * 0.18;
+              lfo.connect(lfoG); lfoG.connect(g.gain); lfo.start();
+              osc.connect(g); g.connect(pan); pan.connect(out); osc.start();
+              nodes.push(osc, g, pan, lfo, lfoG);
+            });
+          });
+          return nodes;
+        };
+      }
+
+      function mpChordPad({ chords, rate, wave, flt, v }) {
+        return (ac, out) => {
+          const nodes = []; let ci = 0;
+          function play() {
+            const chord = chords[ci++ % chords.length];
+            chord.forEach((freq, i) => {
+              const osc = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+              f.type = 'lowpass'; f.frequency.value = flt; f.Q.value = 0.8;
+              osc.type = wave; osc.frequency.value = freq; osc.detune.value = (i - 1) * 5;
+              const now = ac.currentTime;
+              g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(v / chord.length, now + 0.9);
+              g.gain.setValueAtTime(v / chord.length, now + rate - 1.4); g.gain.linearRampToValueAtTime(0, now + rate);
+              osc.connect(f); f.connect(g); g.connect(out); osc.start(now); osc.stop(now + rate + 0.15);
+              nodes.push(osc, f, g);
+            });
+          }
+          play(); nodes._t = setInterval(play, rate * 1000); return nodes;
+        };
+      }
+
+      function mpRhythmic({ bpm, chords, v }) {
+        return (ac, out) => {
+          const nodes = [], beat = 60 / bpm;
+          function kick(t) {
+            const o = ac.createOscillator(), g = ac.createGain();
+            o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+            g.gain.setValueAtTime(0.38, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+            o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.32);
+          }
+          function sched(from, dur) { let t = from; while (t < from + dur + 2) { kick(t); t += beat * 2; } }
+          sched(ac.currentTime, 30); nodes._t = setInterval(() => sched(ac.currentTime, 30), 28000);
+          let ci = 0;
+          function pad() {
+            const chord = chords[ci++ % chords.length];
+            chord.forEach(freq => {
+              const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+              f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 1.2;
+              o.type = 'sawtooth'; o.frequency.value = freq / 2;
+              const now = ac.currentTime;
+              g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(v / chord.length, now + 0.5);
+              g.gain.linearRampToValueAtTime(0, now + beat * 4);
+              o.connect(f); f.connect(g); g.connect(out); o.start(now); o.stop(now + beat * 4 + 0.2);
+              nodes.push(o, f, g);
+            });
+          }
+          pad(); nodes._t2 = setInterval(pad, beat * 4 * 1000); return nodes;
+        };
+      }
+
+      function mpNoiseDrone({ dFreq, nv, dv }) {
+        return (ac, out) => {
+          const nodes = [];
+          const len = ac.sampleRate * 3, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+          let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+          for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; b0 = .99886 * b0 + w * .0555179; b1 = .99332 * b1 + w * .0750759; b2 = .96900 * b2 + w * .153852; b3 = .86650 * b3 + w * .310486; b4 = .55000 * b4 + w * .532952; b5 = -.7616 * b5 - w * .016898; d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * .536201) / 7; b6 = w * .115926; }
+          const src = ac.createBufferSource(), ng = ac.createGain(), nf = ac.createBiquadFilter();
+          src.buffer = buf; src.loop = true; nf.type = 'lowpass'; nf.frequency.value = 450; ng.gain.value = nv;
+          src.connect(nf); nf.connect(ng); ng.connect(out); src.start(); nodes.push(src, ng, nf);
+          [dFreq, dFreq * 1.5, dFreq * 2].forEach((f, i) => {
+            const o = ac.createOscillator(), g = ac.createGain();
+            o.type = 'sine'; o.frequency.value = f; g.gain.value = dv / (i + 1);
+            o.connect(g); g.connect(out); o.start(); nodes.push(o, g);
+          });
+          return nodes;
+        };
+      }
+
+      function mpArpeggio({ notes, step, wave, flt, v }) {
+        return (ac, out) => {
+          const nodes = []; let ni = 0;
+          function note() {
+            const freq = notes[ni++ % notes.length];
+            const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+            f.type = 'lowpass'; f.frequency.value = flt; f.Q.value = 2; o.type = wave; o.frequency.value = freq;
+            const now = ac.currentTime;
+            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(v, now + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.001, now + step * 0.82);
+            o.connect(f); f.connect(g); g.connect(out); o.start(now); o.stop(now + step); nodes.push(o, f, g);
+          }
+          note(); nodes._t = setInterval(note, step * 1000); return nodes;
+        };
+      }
+
+      function mpEnsureAC() {
+        if (mpAC) return;
+        mpAC = new (window.AudioContext || window.webkitAudioContext)();
+        mpMaster = mpAC.createGain();
+        mpMaster.gain.value = parseFloat(document.getElementById('mp-vol').value);
+        mpAnalyser = mpAC.createAnalyser();
+        mpAnalyser.fftSize = 256; mpAnalyser.smoothingTimeConstant = 0.82;
+        mpMaster.connect(mpAnalyser); mpAnalyser.connect(mpAC.destination);
+        if (!mpVizStarted) { mpVizStarted = true; mpStartViz(); }
+      }
+
+      function mpPlay(idx) {
+        mpStop(0.05); mpEnsureAC();
+        if (mpAC.state === 'suspended') mpAC.resume();
+        mpIdx = ((idx % MP_TRACKS.length) + MP_TRACKS.length) % MP_TRACKS.length;
+        const t = MP_TRACKS[mpIdx];
+        mpGain = mpAC.createGain();
+        mpGain.gain.setValueAtTime(0, mpAC.currentTime);
+        mpGain.gain.linearRampToValueAtTime(1, mpAC.currentTime + 1.2);
+        mpGain.connect(mpMaster);
+        mpNodes = t.synth(mpAC, mpGain);
+        mpPlaying = true; mpUpdateUI(); mpStartProg();
+      }
+
+      function mpStop(fade = 0.08) {
+        if (mpNodes._t) clearInterval(mpNodes._t);
+        if (mpNodes._t2) clearInterval(mpNodes._t2);
+        const g = mpGain;
+        if (g && mpAC) {
+          const now = mpAC.currentTime;
+          g.gain.setValueAtTime(g.gain.value || 0, now);
+          g.gain.linearRampToValueAtTime(0, now + fade);
+          setTimeout(() => {
+            mpNodes.forEach(n => { if (n && typeof n.stop === 'function') { try { n.stop(); n.disconnect(); } catch (e) { } } });
+            try { g.disconnect(); } catch (e) { }
+            mpNodes = [];
+          }, fade * 1000 + 60);
+        } else { mpNodes = []; }
+        mpStopProg();
+      }
+
+      function mpStartProg() {
+        mpStopProg(); mpSec = 0;
+        document.getElementById('mp-tot').textContent = mpFmt(MP_CYCLE);
+        mpProg = setInterval(() => {
+          mpSec++;
+          document.getElementById('mp-prog-fill').style.width = ((mpSec / MP_CYCLE) * 100) + '%';
+          document.getElementById('mp-cur').textContent = mpFmt(mpSec);
+          if (mpSec >= MP_CYCLE) mpNext();
+        }, 1000);
+      }
+      function mpStopProg() {
+        if (mpProg) { clearInterval(mpProg); mpProg = null; }
+        document.getElementById('mp-prog-fill').style.width = '0%';
+        document.getElementById('mp-cur').textContent = '0:00';
+        document.getElementById('mp-tot').textContent = '0:00';
+      }
+
+      function mpUpdateUI() {
+        const t = MP_TRACKS[mpIdx];
+        document.getElementById('mp-name').textContent = t.title;
+        document.getElementById('mp-artist').textContent = t.artist;
+        document.getElementById('mp-art').textContent = t.emoji;
+        document.getElementById('mp-ico-play').style.display = mpPlaying ? 'none' : '';
+        document.getElementById('mp-ico-pause').style.display = mpPlaying ? '' : 'none';
+        document.getElementById('music-fab').style.background =
+          mpPlaying ? 'linear-gradient(135deg,#34d399,#059669)' : 'linear-gradient(135deg,#7c5cfc,#4a2fc0)';
+        document.querySelectorAll('.mp-track-row').forEach((el, i) => {
+          el.classList.toggle('active', i === mpIdx && mpPlaying);
+          el.querySelector('.mp-eq').style.display = (i === mpIdx && mpPlaying) ? 'flex' : 'none';
+        });
+      }
+
+      function mpStartViz() {
+        const canvas = document.getElementById('mp-viz');
+        const ctx = canvas.getContext('2d');
+        (function draw() {
+          requestAnimationFrame(draw);
+          canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+          const W = canvas.width, H = canvas.height;
+          ctx.clearRect(0, 0, W, H);
+          if (!mpAnalyser || !mpPlaying) {
+            ctx.strokeStyle = 'rgba(124,92,252,0.15)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke(); return;
+          }
+          const data = new Uint8Array(mpAnalyser.frequencyBinCount);
+          mpAnalyser.getByteTimeDomainData(data);
+          ctx.strokeStyle = 'rgba(167,139,250,0.85)'; ctx.lineWidth = 1.8;
+          ctx.shadowColor = 'rgba(124,92,252,0.4)'; ctx.shadowBlur = 8;
+          ctx.beginPath();
+          data.forEach((d, i) => {
+            const x = (i / data.length) * W, y = (d / 128) * H / 2;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          });
+          ctx.lineTo(W, H / 2); ctx.stroke(); ctx.shadowBlur = 0;
+        })();
+      }
+
+      function mpRenderList() {
+        document.getElementById('mp-tracklist').innerHTML = MP_TRACKS.map((t, i) => `
+                    <div class="mp-track-row ${i === mpIdx && mpPlaying ? 'active' : ''}" onclick="mpPlayIdx(${i})">
+                        <span class="mp-track-emoji">${t.emoji}</span>
+                        <div class="mp-track-meta">
+                            <div class="mp-track-name">${t.title}</div>
+                            <div class="mp-track-mood">${t.mood}</div>
+                        </div>
+                        <div class="mp-eq" style="display:${i === mpIdx && mpPlaying ? 'flex' : 'none'}">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>`).join('');
+      }
+
+      window.toggleMusicPanel = function () {
+        mpPanelOpen = !mpPanelOpen;
+        document.getElementById('music-panel').classList.toggle('open', mpPanelOpen);
+        if (mpPanelOpen && !mpVizStarted) mpEnsureAC();
+      };
+      window.mpTogglePlay = function () {
+        if (mpPlaying) { mpStop(0.4); mpPlaying = false; mpUpdateUI(); }
+        else { mpPlay(mpIdx); }
+      };
+      window.mpNext = function () { mpStop(0.2); mpPlaying = false; mpPlay(mpIdx + 1); };
+      window.mpPrev = function () { if (mpSec > 4) { mpSec = 0; return; } mpStop(0.2); mpPlaying = false; mpPlay(mpIdx - 1); };
+      window.mpPlayIdx = function (i) { mpPlay(i); };
+      window.mpSetVol = function (v) { if (mpMaster) mpMaster.gain.value = parseFloat(v); };
+      window.mpSeek = function (e) { };
+      window.mpFmt = function (s) {
+        if (!s || isNaN(s)) return '0:00';
+        return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+      };
+
+      mpRenderList();
+    })();
+  </script>
+  <!-- ============================================================
+         END OF MUSIC WIDGET
+         ============================================================ -->
+
+</body>
+
+</html>

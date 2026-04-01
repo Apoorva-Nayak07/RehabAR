@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysioGuide — Rehabilitation Exercise App</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface2: #e8f0f7;
+            --blue: #2b7ab8;
+            --blue-light: #dbeaf8;
+            --blue-mid: #5a9fd4;
+            --teal: #1e9e8a;
+            --teal-light: #d2f0eb;
+            --green: #2e9e6b;
+            --green-light: #d4f0e4;
+            --text: #1a2533;
+            --text2: #4a6380;
+            --text3: #7a95b0;
+            --border: #c8d9ea;
+            --shadow: 0 2px 12px rgba(43, 122, 184, 0.08);
+            --radius: 14px;
+            --font: 'DM Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            box-shadow: 0 1px 8px rgba(43, 122, 184, 0.06);
+        }
+
+        .logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: var(--blue);
+            letter-spacing: -0.3px;
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .session-badge {
+            background: var(--blue-light);
+            color: var(--blue);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .time-display {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Main layout */
+        .main {
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            flex: 1;
+            min-height: 0;
+            gap: 0;
+        }
+
+        /* Left sidebar */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 4px 8px 8px;
+        }
+
+        .ex-card {
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s;
+            background: transparent;
+        }
+
+        .ex-card:hover {
+            background: var(--blue-light);
+            border-color: var(--blue-mid);
+        }
+
+        .ex-card.active {
+            background: var(--blue-light);
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(43, 122, 184, 0.1);
+        }
+
+        .ex-card-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .ex-card-region {
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        .ex-card-region span {
+            background: var(--teal-light);
+            color: var(--teal);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Center viewport */
+        .viewport {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, #e8f2fb 0%, #f0f7f5 100%);
+            position: relative;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        #three-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .exercise-title-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 22px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--blue);
+            white-space: nowrap;
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .avatar-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 12px;
+            color: var(--text3);
+            z-index: 10;
+        }
+
+        /* Progress ring */
+        .ring-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ring-wrap {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .ring-wrap svg {
+            transform: rotate(-90deg);
+        }
+
+        .ring-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-time {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--blue);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ring-label {
+            font-size: 9px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* Right panel */
+        .panel {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-section {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+        }
+
+        /* Metrics row */
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .metric-card {
+            background: var(--surface2);
+            border-radius: 10px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--blue);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric-val.teal {
+            color: var(--teal);
+        }
+
+        .metric-val.green {
+            color: var(--green);
+        }
+
+        .metric-lbl {
+            font-size: 10px;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        /* Steps panel */
+        .steps-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1.5px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .step-item.done {
+            background: #f0fbf7;
+            border-color: #b8e8d8;
+            opacity: 0.7;
+        }
+
+        .step-item.active {
+            background: var(--blue-light);
+            border-color: var(--blue);
+            box-shadow: 0 2px 8px rgba(43, 122, 184, 0.1);
+        }
+
+        .step-item.pending {
+            background: transparent;
+            border-color: var(--border);
+            opacity: 0.5;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-item.done .step-num {
+            background: var(--green);
+            color: white;
+        }
+
+        .step-item.active .step-num {
+            background: var(--blue);
+            color: white;
+        }
+
+        .step-item.pending .step-num {
+            background: var(--border);
+            color: var(--text3);
+        }
+
+        .step-text {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        .step-item.done .step-text {
+            color: var(--text3);
+            text-decoration: line-through;
+        }
+
+        /* Description block */
+        .ex-desc {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+
+        .ex-target {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--teal-light);
+            color: var(--teal);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        /* Controls */
+        .controls {
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: none;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2068a0;
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            color: var(--text3);
+            cursor: default;
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--blue-light);
+            border-color: var(--blue);
+        }
+
+        .btn-next {
+            background: var(--teal);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #177a6a;
+        }
+
+        .btn-voice {
+            background: var(--green-light);
+            color: var(--green);
+            border: 1.5px solid #b8e8d4;
+        }
+
+        .btn-voice.active {
+            background: var(--green);
+            color: white;
+        }
+
+        /* Instruction overlay */
+        .instruction-card {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid var(--blue);
+            border-radius: 16px;
+            padding: 14px 20px;
+            max-width: 340px;
+            text-align: center;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(43, 122, 184, 0.15);
+        }
+
+        .instruction-card p {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .instruction-step {
+            font-size: 11px;
+            color: var(--text3);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* Status dot */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .status-dot.running {
+            background: var(--green);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .status-dot.paused {
+            background: #f0a500;
+        }
+
+        .status-dot.idle {
+            background: var(--text3);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo">Physio<span>Guide</span></div>
+        <div class="header-meta">
+            <span class="session-badge"><span class="status-dot idle" id="statusDot"></span><span
+                    id="statusText">Ready</span></span>
+            <div class="time-display" id="sessionTime">00:00</div>
+        </div>
+    </div>
+
+    <div class="main">
+
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-title">Exercise Library</div>
+            <div id="exerciseList"></div>
+        </div>
+
+        <!-- Center Viewport -->
+        <div class="viewport">
+            <canvas id="three-canvas"></canvas>
+            <div class="exercise-title-overlay" id="exerciseTitleOverlay">Select an exercise to begin</div>
+            <div class="instruction-card" id="instructionCard" style="display:none">
+                <div class="instruction-step" id="instructionStep">Step 1 of 5</div>
+                <p id="instructionText">Get into position</p>
+            </div>
+            <div class="ring-container">
+                <div class="ring-wrap">
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="#dbeaf8" stroke-width="7" />
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="#2b7ab8" stroke-width="7"
+                            stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" id="timerRing"
+                            style="transition:stroke-dashoffset 0.3s linear" />
+                    </svg>
+                    <div class="ring-center">
+                        <div class="ring-time" id="ringTime">--</div>
+                        <div class="ring-label">sec</div>
+                    </div>
+                </div>
+            </div>
+            <div class="avatar-hint" id="avatarHint">3D Avatar — drag to rotate</div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="panel">
+            <div class="panel-section">
+                <div class="section-label">Session Metrics</div>
+                <div class="metrics">
+                    <div class="metric-card">
+                        <div class="metric-val" id="repCount">0</div>
+                        <div class="metric-lbl">Reps</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-val teal" id="setCount">0</div>
+                        <div class="metric-lbl">Sets</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-val green" id="targetInfo">—</div>
+                        <div class="metric-lbl">Target</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="section-label">Exercise Info</div>
+                <div class="ex-desc" id="exDesc">Select an exercise from the left panel to see its description and
+                    instructions.</div>
+                <div id="exTarget" style="display:none">
+                    <div class="ex-target" id="exTargetText"></div>
+                </div>
+            </div>
+
+            <div class="steps-scroll" id="stepsPanel">
+                <div style="color:var(--text3);font-size:13px;padding:10px 0">No exercise selected yet.</div>
+            </div>
+
+            <div class="controls">
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="btnStart" onclick="startExercise()">▶ Start</button>
+                    <button class="btn btn-secondary" id="btnPause" onclick="pauseExercise()" disabled>⏸ Pause</button>
+                    <button class="btn btn-secondary" onclick="resetExercise()">↺ Reset</button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-next" onclick="nextStep()">Next Step →</button>
+                    <button class="btn btn-voice" id="btnVoice" onclick="toggleVoice()">🔊 Voice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // EXERCISE DATA
+        // ============================================================
+        const EXERCISES = [
+            {
+                id: 'shoulder_pendulum',
+                name: 'Shoulder Pendulum',
+                region: 'Shoulder',
+                desc: 'A gentle gravity-assisted exercise that uses the weight of your arm to distract the shoulder joint and reduce pain. Ideal for post-surgical recovery and frozen shoulder.',
+                sets: 3, reps: 10, stepDuration: 8,
+                steps: [
+                    'Stand beside a sturdy table or chair and lean forward, supporting yourself with your unaffected arm.',
+                    'Let your affected arm hang straight down toward the floor. Relax your shoulder completely.',
+                    'Gently swing your arm in small clockwise circles — about 30 cm in diameter.',
+                    'After 10 circles, reverse direction and swing anticlockwise for another 10 circles.',
+                    'Stand up slowly and rest. Repeat for the target sets and reps.'
+                ],
+                color: '#2b7ab8',
+                animation: 'pendulum'
+            },
+            {
+                id: 'seated_knee_raise',
+                name: 'Seated Knee Raise',
+                region: 'Knee',
+                desc: 'Strengthens the hip flexors and quadriceps while maintaining knee stability. Performed seated to reduce joint stress. Suitable for early knee rehabilitation.',
+                sets: 3, reps: 12, stepDuration: 6,
+                steps: [
+                    'Sit upright in a firm chair with your feet flat on the floor, hip-width apart.',
+                    'Place your hands on your thighs or the sides of the chair for stability.',
+                    'Slowly lift your right knee upward, bringing your thigh off the seat by about 15 cm.',
+                    'Hold the raised position for 3 seconds, keeping your back straight and core lightly engaged.',
+                    'Lower your leg slowly and repeat on the left side. Alternate legs for the full rep count.'
+                ],
+                color: '#1e9e8a',
+                animation: 'knee_raise'
+            },
+            {
+                id: 'hip_hinge',
+                name: 'Hip Hinge',
+                region: 'Hip',
+                desc: 'Teaches proper hip mechanics and activates the glutes and hamstrings. A fundamental movement pattern for back pain prevention and lower limb rehabilitation.',
+                sets: 3, reps: 10, stepDuration: 7,
+                steps: [
+                    'Stand tall with your feet shoulder-width apart and a slight bend in your knees.',
+                    'Place your hands on your hips or extend them forward for balance.',
+                    'Push your hips backwards as if trying to touch a wall behind you, keeping your back flat.',
+                    'Hinge until your torso is roughly parallel to the floor — you should feel a stretch in your hamstrings.',
+                    'Drive your hips forward to return to standing, squeezing your glutes at the top. Repeat smoothly.'
+                ],
+                color: '#a05cc8',
+                animation: 'hip_hinge'
+            },
+            {
+                id: 'ankle_circles',
+                name: 'Ankle Circles',
+                region: 'Ankle',
+                desc: 'Improves ankle mobility, circulation and proprioception. Excellent for post-fracture rehab, oedema reduction and preventing stiffness after prolonged bed rest.',
+                sets: 2, reps: 15, stepDuration: 5,
+                steps: [
+                    'Sit in a chair with your back supported. Extend one leg slightly off the floor.',
+                    'Point your toes forward (plantarflexion) and hold for 2 seconds.',
+                    'Slowly rotate your foot in large clockwise circles, moving only at the ankle joint.',
+                    'Complete 10 full circles, then reverse for 10 anticlockwise circles.',
+                    'Switch to the other foot and repeat. Keep the movement slow and controlled throughout.'
+                ],
+                color: '#d4880a',
+                animation: 'ankle_circles'
+            },
+            {
+                id: 'neck_retraction',
+                name: 'Neck Retraction',
+                region: 'Neck',
+                desc: 'Corrects forward head posture and reduces cervical spine strain. Known as the "chin tuck", this exercise is prescribed for neck pain, headaches and cervicogenic dizziness.',
+                sets: 3, reps: 10, stepDuration: 6,
+                steps: [
+                    'Sit upright in a chair with your shoulders relaxed and gaze forward at eye level.',
+                    'Imagine a string gently pulling the top of your head upward — elongate your spine.',
+                    'Without tilting your chin up or down, gently draw your head straight backwards.',
+                    'You should feel a slight stretch at the base of your skull and the back of your neck.',
+                    'Hold for 5 seconds, then slowly return to neutral. Do not force the movement — it should be pain-free.'
+                ],
+                color: '#c8414a',
+                animation: 'neck_retraction'
+            }
+        ];
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let state = {
+            selectedEx: null,
+            running: false,
+            paused: false,
+            currentStep: 0,
+            reps: 0,
+            sets: 0,
+            stepTimer: 0,
+            stepInterval: null,
+            sessionTimer: 0,
+            sessionInterval: null,
+            voiceEnabled: false,
+            animTime: 0,
+            totalStepTime: 0
+        };
+
+        // ============================================================
+        // BUILD EXERCISE LIST
+        // ============================================================
+        const listEl = document.getElementById('exerciseList');
+        EXERCISES.forEach(ex => {
+            const div = document.createElement('div');
+            div.className = 'ex-card';
+            div.id = 'excard-' + ex.id;
+            div.innerHTML = `<div class="ex-card-name">${ex.name}</div><div class="ex-card-region"><span>${ex.region}</span></div>`;
+            div.onclick = () => selectExercise(ex);
+            listEl.appendChild(div);
+        });
+
+        // ============================================================
+        // THREE.JS AVATAR SETUP
+        // ============================================================
+        const canvas3d = document.getElementById('three-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(0, 1.2, 4.2);
+        camera.lookAt(0, 0.8, 0);
+
+        // Lighting
+        const ambient = new THREE.AmbientLight(0xe8f2fb, 0.7);
+        scene.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(3, 6, 4);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.set(1024, 1024);
+        scene.add(dirLight);
+        const fillLight = new THREE.DirectionalLight(0xd0e8ff, 0.3);
+        fillLight.position.set(-3, 2, -2);
+        scene.add(fillLight);
+
+        // Floor
+        const floorGeo = new THREE.CircleGeometry(2.5, 48);
+        const floorMat = new THREE.MeshLambertMaterial({ color: 0xe0eef8, transparent: true, opacity: 0.6 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // ---- HUMANOID AVATAR ----
+        const avatarGroup = new THREE.Group();
+        scene.add(avatarGroup);
+
+        const skinColor = 0xfdd5b1;
+        const clothBlue = 0x2b7ab8;
+        const clothGray = 0x6e8aa8;
+        const pantsColor = 0x3a5a7a;
+        const shoeColor = 0x2a3d52;
+
+        function mkMesh(geo, color, castShadow = true) {
+            const mat = new THREE.MeshLambertMaterial({ color });
+            const mesh = new THREE.Mesh(geo, mat);
+            if (castShadow) mesh.castShadow = true;
+            return mesh;
+        }
+
+        // Torso
+        const torso = mkMesh(new THREE.CylinderGeometry(0.21, 0.19, 0.55, 12), clothBlue);
+        torso.position.set(0, 0.9, 0);
+        avatarGroup.add(torso);
+
+        // Shoulders
+        const shoulderL = mkMesh(new THREE.SphereGeometry(0.1, 10, 8), clothBlue);
+        shoulderL.position.set(-0.3, 1.1, 0);
+        avatarGroup.add(shoulderL);
+        const shoulderR = shoulderL.clone(); shoulderR.position.set(0.3, 1.1, 0);
+        avatarGroup.add(shoulderR);
+
+        // Head
+        const head = mkMesh(new THREE.SphereGeometry(0.18, 14, 12), skinColor);
+        head.position.set(0, 1.62, 0);
+        avatarGroup.add(head);
+
+        // Hair
+        const hair = mkMesh(new THREE.SphereGeometry(0.185, 14, 8), 0x3a2a1a);
+        hair.position.set(0, 1.67, -0.01);
+        hair.scale.y = 0.55;
+        avatarGroup.add(hair);
+
+        // Neck
+        const neck = mkMesh(new THREE.CylinderGeometry(0.075, 0.085, 0.14, 10), skinColor);
+        neck.position.set(0, 1.43, 0);
+        avatarGroup.add(neck);
+
+        // Hips
+        const hips = mkMesh(new THREE.CylinderGeometry(0.23, 0.2, 0.22, 12), pantsColor);
+        hips.position.set(0, 0.6, 0);
+        avatarGroup.add(hips);
+
+        // Upper arms
+        const uArmL = mkMesh(new THREE.CylinderGeometry(0.065, 0.055, 0.32, 10), clothBlue);
+        const uArmR = uArmL.clone();
+        const armGroupL = new THREE.Group();
+        const armGroupR = new THREE.Group();
+        armGroupL.position.set(-0.3, 1.1, 0);
+        armGroupR.position.set(0.3, 1.1, 0);
+        uArmL.position.set(0, -0.18, 0);
+        uArmR.position.set(0, -0.18, 0);
+        armGroupL.add(uArmL);
+        armGroupR.add(uArmR);
+        avatarGroup.add(armGroupL);
+        avatarGroup.add(armGroupR);
+
+        // Lower arms
+        const lArmL = mkMesh(new THREE.CylinderGeometry(0.055, 0.045, 0.28, 10), skinColor);
+        const lArmR = lArmL.clone();
+        lArmL.position.set(0, -0.42, 0);
+        lArmR.position.set(0, -0.42, 0);
+        armGroupL.add(lArmL);
+        armGroupR.add(lArmR);
+
+        // Hands
+        const handL = mkMesh(new THREE.SphereGeometry(0.065, 8, 7), skinColor);
+        const handR = handL.clone();
+        handL.position.set(0, -0.6, 0);
+        handR.position.set(0, -0.6, 0);
+        armGroupL.add(handL);
+        armGroupR.add(handR);
+
+        // Upper legs
+        const uLegL = mkMesh(new THREE.CylinderGeometry(0.1, 0.085, 0.42, 10), pantsColor);
+        const uLegR = uLegL.clone();
+        const legGroupL = new THREE.Group();
+        const legGroupR = new THREE.Group();
+        legGroupL.position.set(-0.12, 0.49, 0);
+        legGroupR.position.set(0.12, 0.49, 0);
+        uLegL.position.set(0, -0.22, 0);
+        uLegR.position.set(0, -0.22, 0);
+        legGroupL.add(uLegL);
+        legGroupR.add(uLegR);
+        avatarGroup.add(legGroupL);
+        avatarGroup.add(legGroupR);
+
+        // Lower legs
+        const lLegL = mkMesh(new THREE.CylinderGeometry(0.075, 0.065, 0.4, 10), clothGray);
+        const lLegR = lLegL.clone();
+        lLegL.position.set(0, -0.6, 0);
+        lLegR.position.set(0, -0.6, 0);
+        legGroupL.add(lLegL);
+        legGroupR.add(lLegR);
+
+        // Feet
+        const footL = mkMesh(new THREE.BoxGeometry(0.1, 0.07, 0.22), shoeColor);
+        const footR = footL.clone();
+        footL.position.set(0, -0.835, 0.04);
+        footR.position.set(0, -0.835, 0.04);
+        legGroupL.add(footL);
+        legGroupR.add(footR);
+
+        // Center avatar
+        avatarGroup.position.set(0, 0.04, 0);
+
+        // ---- ORBIT CONTROLS (manual) ----
+        let isDragging = false, lastMX = 0, lastMY = 0;
+        let camTheta = 0, camPhi = Math.PI / 8;
+        const CAM_R = 4.2;
+        canvas3d.addEventListener('mousedown', e => { isDragging = true; lastMX = e.clientX; lastMY = e.clientY; });
+        canvas3d.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            camTheta -= (e.clientX - lastMX) * 0.008;
+            camPhi = Math.max(-0.4, Math.min(0.9, camPhi + (e.clientY - lastMY) * 0.006));
+            lastMX = e.clientX; lastMY = e.clientY;
+        });
+        canvas3d.addEventListener('mouseup', () => isDragging = false);
+        canvas3d.addEventListener('mouseleave', () => isDragging = false);
+        canvas3d.addEventListener('touchstart', e => { isDragging = true; lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY; }, { passive: true });
+        canvas3d.addEventListener('touchmove', e => {
+            if (!isDragging) return;
+            camTheta -= (e.touches[0].clientX - lastMX) * 0.008;
+            camPhi = Math.max(-0.4, Math.min(0.9, camPhi + (e.touches[0].clientY - lastMY) * 0.006));
+            lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+            e.preventDefault();
+        }, { passive: false });
+        canvas3d.addEventListener('touchend', () => isDragging = false);
+
+        // ============================================================
+        // ANIMATIONS
+        // ============================================================
+        const animations = {
+            pendulum: (t) => {
+                const swing = Math.sin(t * 1.8) * 0.55;
+                const swingZ = Math.cos(t * 1.8) * 0.3;
+                armGroupL.rotation.z = swing;
+                armGroupL.rotation.x = swingZ;
+                armGroupR.rotation.z = 0.05;
+                armGroupR.rotation.x = 0;
+                torso.rotation.z = swing * 0.12;
+                legGroupL.rotation.x = 0; legGroupR.rotation.x = 0;
+                avatarGroup.rotation.z = 0;
+                head.position.y = 1.62;
+            },
+            knee_raise: (t) => {
+                const phase = (Math.sin(t * 1.2) + 1) / 2;
+                const legUp = phase * 0.9;
+                legGroupL.rotation.x = -legUp;
+                legGroupR.rotation.x = 0;
+                armGroupL.rotation.z = -0.1; armGroupR.rotation.z = 0.1;
+                armGroupL.rotation.x = 0; armGroupR.rotation.x = 0;
+                torso.rotation.z = 0; avatarGroup.rotation.z = 0;
+                head.position.y = 1.62;
+            },
+            hip_hinge: (t) => {
+                const hinge = (Math.sin(t * 1.0) + 1) / 2;
+                avatarGroup.rotation.x = hinge * 0.65;
+                avatarGroup.position.y = -hinge * 0.2 + 0.04;
+                armGroupL.rotation.z = -hinge * 0.6;
+                armGroupR.rotation.z = hinge * 0.6;
+                armGroupL.rotation.x = hinge * 0.3;
+                armGroupR.rotation.x = hinge * 0.3;
+                legGroupL.rotation.x = hinge * 0.15; legGroupR.rotation.x = hinge * 0.15;
+                torso.rotation.z = 0; head.position.y = 1.62;
+            },
+            ankle_circles: (t) => {
+                const circle = t * 2.0;
+                legGroupL.rotation.x = Math.sin(circle) * 0.3;
+                legGroupL.rotation.z = Math.cos(circle) * 0.2;
+                legGroupR.rotation.x = 0; legGroupR.rotation.z = 0;
+                armGroupL.rotation.z = -0.1; armGroupR.rotation.z = 0.1;
+                armGroupL.rotation.x = 0; armGroupR.rotation.x = 0;
+                avatarGroup.rotation.x = 0; avatarGroup.position.y = 0.04;
+                torso.rotation.z = 0; head.position.y = 1.62;
+            },
+            neck_retraction: (t) => {
+                const retract = (Math.sin(t * 1.4) + 1) / 2;
+                head.position.z = retract * -0.12;
+                head.position.y = 1.62;
+                armGroupL.rotation.z = 0; armGroupR.rotation.z = 0;
+                armGroupL.rotation.x = 0; armGroupR.rotation.x = 0;
+                legGroupL.rotation.x = 0; legGroupR.rotation.x = 0;
+                avatarGroup.rotation.x = 0; avatarGroup.position.y = 0.04;
+                torso.rotation.z = 0;
+            },
+            idle: (t) => {
+                const sway = Math.sin(t * 0.6) * 0.012;
+                avatarGroup.rotation.z = sway;
+                armGroupL.rotation.z = sway * 0.5 - 0.05;
+                armGroupR.rotation.z = -sway * 0.5 + 0.05;
+                armGroupL.rotation.x = 0; armGroupR.rotation.x = 0;
+                legGroupL.rotation.x = 0; legGroupR.rotation.x = 0;
+                avatarGroup.rotation.x = 0; avatarGroup.position.y = 0.04;
+                torso.rotation.z = 0; head.position.y = 1.62; head.position.z = 0;
+            }
+        };
+
+        function resetAvatarPose() {
+            [armGroupL, armGroupR, legGroupL, legGroupR].forEach(g => { g.rotation.set(0, 0, 0); });
+            avatarGroup.rotation.set(0, 0, 0); avatarGroup.position.set(0, 0.04, 0);
+            torso.rotation.set(0, 0, 0); head.position.set(0, 1.62, 0);
+        }
+
+        // ============================================================
+        // RENDER LOOP
+        // ============================================================
+        let raf;
+        function renderLoop(ts) {
+            raf = requestAnimationFrame(renderLoop);
+            const t = ts / 1000;
+            state.animTime = t;
+
+            // Camera orbit
+            camera.position.x = CAM_R * Math.sin(camTheta) * Math.cos(camPhi);
+            camera.position.y = 1.2 + CAM_R * Math.sin(camPhi);
+            camera.position.z = CAM_R * Math.cos(camTheta) * Math.cos(camPhi);
+            camera.lookAt(0, 0.9, 0);
+
+            // Apply animation
+            const ex = state.selectedEx;
+            if (ex && state.running && !state.paused) {
+                (animations[ex.animation] || animations.idle)(t);
+            } else if (!ex) {
+                animations.idle(t);
+            }
+
+            // Resize
+            const parent = canvas3d.parentElement;
+            const w = parent.clientWidth, h = parent.clientHeight;
+            if (renderer.domElement.width !== w || renderer.domElement.height !== h) {
+                renderer.setSize(w, h, false);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+
+            renderer.render(scene, camera);
+        }
+        renderLoop(0);
+
+        // ============================================================
+        // SELECT EXERCISE
+        // ============================================================
+        function selectExercise(ex) {
+            resetExercise();
+            state.selectedEx = ex;
+            document.querySelectorAll('.ex-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('excard-' + ex.id).classList.add('active');
+            document.getElementById('exerciseTitleOverlay').textContent = ex.name;
+            document.getElementById('exDesc').textContent = ex.desc;
+            document.getElementById('exTargetText').textContent = `${ex.sets} sets × ${ex.reps} reps`;
+            document.getElementById('exTarget').style.display = 'block';
+            document.getElementById('targetInfo').textContent = ex.reps;
+            renderSteps();
+            document.getElementById('btnStart').disabled = false;
+            setStatus('idle');
+        }
+
+        // ============================================================
+        // RENDER STEPS
+        // ============================================================
+        function renderSteps() {
+            const ex = state.selectedEx;
+            if (!ex) return;
+            const panel = document.getElementById('stepsPanel');
+            panel.innerHTML = '';
+            ex.steps.forEach((step, i) => {
+                const div = document.createElement('div');
+                let cls = 'pending';
+                if (i < state.currentStep) cls = 'done';
+                else if (i === state.currentStep) cls = 'active';
+                div.className = `step-item ${cls}`;
+                const numText = i < state.currentStep ? '✓' : (i + 1);
+                div.innerHTML = `<div class="step-num">${numText}</div><div class="step-text">${step}</div>`;
+                panel.appendChild(div);
+            });
+            panel.children[state.currentStep]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ============================================================
+        // SHOW INSTRUCTION
+        // ============================================================
+        function showInstruction() {
+            const ex = state.selectedEx;
+            if (!ex) return;
+            const card = document.getElementById('instructionCard');
+            document.getElementById('instructionStep').textContent = `Step ${state.currentStep + 1} of ${ex.steps.length}`;
+            document.getElementById('instructionText').textContent = ex.steps[state.currentStep];
+            card.style.display = 'block';
+            if (state.voiceEnabled) speak(ex.steps[state.currentStep]);
+        }
+
+        // ============================================================
+        // STEP TIMER
+        // ============================================================
+        function startStepTimer() {
+            clearInterval(state.stepInterval);
+            const ex = state.selectedEx;
+            state.stepTimer = ex.stepDuration;
+            state.totalStepTime = ex.stepDuration;
+            updateRing();
+            state.stepInterval = setInterval(() => {
+                if (state.paused) return;
+                state.stepTimer--;
+                updateRing();
+                if (state.stepTimer <= 0) {
+                    clearInterval(state.stepInterval);
+                    autoAdvance();
+                }
+            }, 1000);
+        }
+
+        function updateRing() {
+            const el = document.getElementById('timerRing');
+            const timeEl = document.getElementById('ringTime');
+            const pct = state.totalStepTime > 0 ? (state.stepTimer / state.totalStepTime) : 0;
+            const circumference = 213.6;
+            el.style.strokeDashoffset = circumference * (1 - pct);
+            el.style.stroke = state.stepTimer <= 3 ? '#e05050' : '#2b7ab8';
+            timeEl.textContent = state.stepTimer > 0 ? state.stepTimer : '--';
+        }
+
+        // ============================================================
+        // AUTO ADVANCE
+        // ============================================================
+        function autoAdvance() {
+            const ex = state.selectedEx;
+            if (!ex || !state.running) return;
+            state.currentStep++;
+            if (state.currentStep >= ex.steps.length) {
+                // One rep complete
+                state.reps++;
+                document.getElementById('repCount').textContent = state.reps;
+                if (state.reps >= ex.reps) {
+                    // One set complete
+                    state.sets++;
+                    state.reps = 0;
+                    document.getElementById('setCount').textContent = state.sets;
+                    document.getElementById('repCount').textContent = state.reps;
+                    if (state.sets >= ex.sets) {
+                        finishSession();
+                        return;
+                    }
+                    if (state.voiceEnabled) speak(`Set ${state.sets} complete. Starting next set.`);
+                }
+                state.currentStep = 0;
+            }
+            renderSteps();
+            showInstruction();
+            startStepTimer();
+        }
+
+        // ============================================================
+        // START / PAUSE / RESET
+        // ============================================================
+        function startExercise() {
+            if (!state.selectedEx) return;
+            if (state.paused) {
+                state.paused = false;
+                document.getElementById('btnStart').disabled = true;
+                document.getElementById('btnPause').disabled = false;
+                setStatus('running');
+                if (state.voiceEnabled) speak('Resuming.');
+                return;
+            }
+            state.running = true;
+            state.paused = false;
+            state.currentStep = 0;
+            state.reps = 0; state.sets = 0;
+            document.getElementById('repCount').textContent = 0;
+            document.getElementById('setCount').textContent = 0;
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('btnPause').disabled = false;
+            setStatus('running');
+            if (!state.sessionInterval) {
+                state.sessionTimer = 0;
+                state.sessionInterval = setInterval(() => {
+                    if (!state.paused) {
+                        state.sessionTimer++;
+                        const m = String(Math.floor(state.sessionTimer / 60)).padStart(2, '0');
+                        const s = String(state.sessionTimer % 60).padStart(2, '0');
+                        document.getElementById('sessionTime').textContent = `${m}:${s}`;
+                    }
+                }, 1000);
+            }
+            renderSteps();
+            showInstruction();
+            startStepTimer();
+            if (state.voiceEnabled) speak(`Starting ${state.selectedEx.name}. ${state.selectedEx.steps[0]}`);
+        }
+
+        function pauseExercise() {
+            state.paused = true;
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('btnStart').textContent = '▶ Resume';
+            document.getElementById('btnPause').disabled = true;
+            setStatus('paused');
+            if (state.voiceEnabled) speak('Paused.');
+        }
+
+        function resetExercise() {
+            clearInterval(state.stepInterval);
+            clearInterval(state.sessionInterval);
+            state.stepInterval = null; state.sessionInterval = null;
+            state.running = false; state.paused = false;
+            state.currentStep = 0; state.reps = 0; state.sets = 0;
+            state.stepTimer = 0; state.sessionTimer = 0;
+            document.getElementById('repCount').textContent = 0;
+            document.getElementById('setCount').textContent = 0;
+            document.getElementById('sessionTime').textContent = '00:00';
+            document.getElementById('ringTime').textContent = '--';
+            document.getElementById('timerRing').style.strokeDashoffset = 213.6;
+            document.getElementById('btnStart').disabled = !state.selectedEx;
+            document.getElementById('btnStart').textContent = '▶ Start';
+            document.getElementById('btnPause').disabled = true;
+            document.getElementById('instructionCard').style.display = 'none';
+            setStatus('idle');
+            resetAvatarPose();
+            if (state.selectedEx) renderSteps();
+        }
+
+        function nextStep() {
+            if (!state.running) return;
+            clearInterval(state.stepInterval);
+            autoAdvance();
+        }
+
+        function finishSession() {
+            clearInterval(state.stepInterval);
+            clearInterval(state.sessionInterval);
+            state.running = false;
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('btnStart').textContent = '▶ Restart';
+            document.getElementById('btnPause').disabled = true;
+            document.getElementById('instructionCard').style.display = 'none';
+            setStatus('idle');
+            const ex = state.selectedEx;
+            if (state.voiceEnabled) speak(`Well done! You have completed all ${ex.sets} sets of ${ex.name}. Excellent work.`);
+            alert(`🎉 Session Complete!\n${ex.name}\n${ex.sets} sets × ${ex.reps} reps\nTime: ${document.getElementById('sessionTime').textContent}`);
+        }
+
+        // ============================================================
+        // VOICE
+        // ============================================================
+        function toggleVoice() {
+            state.voiceEnabled = !state.voiceEnabled;
+            const btn = document.getElementById('btnVoice');
+            btn.classList.toggle('active', state.voiceEnabled);
+            btn.textContent = state.voiceEnabled ? '🔊 Voice On' : '🔊 Voice';
+            if (state.voiceEnabled) speak('Voice guidance enabled.');
+        }
+
+        function speak(text) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.88; u.pitch = 1.0; u.volume = 1.0;
+            const voices = window.speechSynthesis.getVoices();
+            const pref = voices.find(v => v.lang.startsWith('en') && v.localService) || voices.find(v => v.lang.startsWith('en'));
+            if (pref) u.voice = pref;
+            window.speechSynthesis.speak(u);
+        }
+
+        // ============================================================
+        // STATUS
+        // ============================================================
+        function setStatus(s) {
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+            dot.className = 'status-dot ' + s;
+            txt.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnPause').disabled = true;
+
+        // Pre-select first exercise
+        selectExercise(EXERCISES[0]);
+    </script>
+</body>
+
+</html>

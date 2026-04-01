@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rehab.AR | AI-Powered Physiotherapy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #2d2b55 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .nav-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .nav-logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover {
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-link.active {
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 12px;
+            color: #a78bfa;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* IP Card */
+        .ip-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .ip-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b5cf6;
+            margin-bottom: 8px;
+        }
+
+        .ip-address {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 16px;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: inline-block;
+            word-break: break-all;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 25px 35px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            min-width: 140px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        /* Buttons */
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid #8b5cf6;
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Section Titles */
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 50px;
+            font-size: 16px;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 30px 25px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* Instructions */
+        .instructions-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .instructions-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .instruction-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Testimonial Section */
+        .testimonial-section {
+            margin-bottom: 60px;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 25px;
+        }
+
+        .testimonial-text {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .author-title {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tools {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .tool-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-link {
+            color: #64748b;
+            font-size: 18px;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            color: #8b5cf6;
+        }
+
+        .copyright {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        /* Section Spacing */
+        section {
+            scroll-margin-top: 80px;
+        }
+
+        /* ===================== LOGIN MODAL ===================== */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(10, 10, 30, 0.85);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.active {
+            display: flex;
+        }
+
+        .login-modal {
+            background: linear-gradient(145deg, rgba(30, 27, 75, 0.98), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 28px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+            position: relative;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(99, 102, 241, 0.1);
+            animation: modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .login-close {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .login-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .login-logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .login-logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-heading {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .login-subheading {
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        /* Tab switcher */
+        .login-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            color: #64748b;
+            background: transparent;
+        }
+
+        .login-tab.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        /* Role selector */
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .role-btn .role-icon {
+            font-size: 22px;
+        }
+
+        .role-btn.active {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+        }
+
+        /* Form inputs */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 7px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+        }
+
+        .form-input::placeholder {
+            color: #475569;
+        }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+
+        .input-icon-wrap .form-input {
+            padding-left: 42px;
+        }
+
+        .input-icon-wrap .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #475569;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-icon-wrap .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #475569;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .input-icon-wrap .toggle-pw:hover {
+            color: #8b5cf6;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            color: #8b5cf6;
+            text-decoration: none;
+            margin-top: -8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #c4b5fd;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .login-divider span {
+            font-size: 11px;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-google:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .login-footer-text {
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .login-footer-text a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-footer-text a:hover {
+            color: #c4b5fd;
+        }
+
+        /* Error / success messages */
+        .form-message {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .form-message.error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            display: block;
+        }
+
+        .form-message.success {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+            display: block;
+        }
+
+        /* Terms checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #8b5cf6;
+            margin-top: 2px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .checkbox-group label a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                padding: 20px 0 10px;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
+
+            .stat-card {
+                padding: 15px 20px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-modal {
+                padding: 36px 24px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" onclick="scrollToTop()">
+                <div class="nav-logo-icon">🦿</div>
+                <span class="nav-logo-text">Rehab.AR</span>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><button class="nav-link active" onclick="scrollToSection('home', this)"><i class="fas fa-home"></i>
+                        Home</button></li>
+                <li><button class="nav-link" onclick="scrollToSection('features', this)"><i class="fas fa-star"></i>
+                        Features</button></li>
+                <li><button class="nav-link" onclick="scrollToSection('howitworks', this)"><i
+                            class="fas fa-play-circle"></i> How It Works</button></li>
+                <li><button class="nav-link" onclick="scrollToSection('testimonials', this)"><i
+                            class="fas fa-users"></i> Testimonials</button></li>
+                <li><button class="nav-link" onclick="showDoctor()"><i class="fas fa-chart-line"></i> Doctor
+                        Portal</button></li>
+                <li><button class="nav-link" onclick="openLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section id="home" style="scroll-margin-top: 80px;">
+            <div class="hero">
+                <h1>Your Personal AI<br>Physiotherapist</h1>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <div class="buttons-container">
+            <button class="btn btn-primary" onclick="startAR()">
+                <i class="fas fa-video"></i> Start AR Physiotherapy
+            </button>
+            <button class="btn btn-secondary" onclick="showDoctor()">
+                <i class="fas fa-chart-line"></i> Doctor Dashboard
+            </button>
+            <button class="btn btn-secondary" onclick="showPatient()">
+                <i class="fas fa-user"></i> Patient Dashboard
+            </button>
+            <button class="btn btn-outline" onclick="showUnity()">
+                <i class="fas fa-cube"></i> View 3D Avatar
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='multiplayer.html'">
+                <i class="fas fa-gamepad"></i> Multiplayer
+            </button>
+        </div>
+
+        <!-- Features Section -->
+        <section id="features" style="scroll-margin-top: 80px;">
+            <div class="section-title">Powerful Features</div>
+            <div class="section-subtitle">Everything you need for a complete recovery journey</div>
+        </section>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">Real-Time AI Feedback</div>
+                <div class="feature-desc">MediaPipe AI tracks 33 body points with 95% accuracy, providing instant
+                    corrections</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🦿</div>
+                <div class="feature-title">3D Avatar Guide</div>
+                <div class="feature-desc">Blender & Maya powered realistic demonstrations with proper form</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Doctor Dashboard</div>
+                <div class="feature-desc">Track patient progress, adherence rates, and recovery metrics in real-time
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <div class="feature-title">Multiplayer Mode</div>
+                <div class="feature-desc">Recover with friends, group challenges, and social motivation</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">Progress Analytics</div>
+                <div class="feature-desc">Detailed reports, improvement trends, and personalized insights</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔊</div>
+                <div class="feature-title">Voice Feedback</div>
+                <div class="feature-desc">Natural language corrections with Indian English support</div>
+            </div>
+        </div>
+
+        <!-- How It Works Section -->
+        <section id="howitworks" style="scroll-margin-top: 80px;">
+            <div class="section-title">How It Works</div>
+            <div class="section-subtitle">Simple steps to start your recovery journey</div>
+        </section>
+        <div class="instructions-section">
+            <div class="instructions-title">
+                <i class="fas fa-compass"></i> Getting Started
+            </div>
+            <div class="instructions-grid">
+                <div class="instruction-item">
+                    <div class="instruction-number">1</div>
+                    <span>Connect phone to same WiFi as laptop</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">2</div>
+                    <span>Open the link on your phone</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">3</div>
+                    <span>Click "Start AR Physiotherapy"</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">4</div>
+                    <span>Allow camera access</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">5</div>
+                    <span>Stand 2 meters from camera</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-number">6</div>
+                    <span>Follow the avatar & AI guidance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" style="scroll-margin-top: 80px;">
+            <div class="section-title">What Doctors Say</div>
+            <div class="section-subtitle">Trusted by healthcare professionals</div>
+        </section>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-text">"Rehab.AR has transformed how my patients recover. The real-time feedback
+                    ensures they perform exercises correctly even at home."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">👨‍⚕️</div>
+                    <div>
+                        <div class="author-name">Dr. Rajesh Kumar</div>
+                        <div class="author-title">Orthopedic Surgeon, Apollo Hospitals</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-text">"The doctor dashboard gives me complete visibility into patient progress.
+                    I can track adherence and intervene when needed."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">👩‍⚕️</div>
+                    <div>
+                        <div class="author-name">Dr. Priya Sharma</div>
+                        <div class="author-title">Physiotherapist, Fortis Healthcare</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-text">"Finally a solution that works on any smartphone! My rural patients can
+                    now access quality physiotherapy guidance."</div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">👨‍⚕️</div>
+                    <div>
+                        <div class="author-name">Dr. Anil Mehta</div>
+                        <div class="author-title">Rural Health Specialist</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="tools">
+                <span class="tool-badge"><i class="fas fa-cube"></i> Blender 3D Modeling</span>
+                <span class="tool-badge"><i class="fas fa-film"></i> Maya Animation</span>
+                <span class="tool-badge"><i class="fas fa-gamepad"></i> Unity AR/VR</span>
+                <span class="tool-badge"><i class="fas fa-brain"></i> MediaPipe AI</span>
+                <span class="tool-badge"><i class="fas fa-heartbeat"></i> Healthcare Innovation</span>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            </div>
+            <div class="copyright">
+                Team Runtime-Rebels • Virtuovation 2.0 2026 • Healthcare Domain • Built with ❤️ for India
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== LOGIN MODAL ===================== -->
+    <div class="login-overlay" id="loginOverlay" onclick="handleOverlayClick(event)">
+        <div class="login-modal">
+            <button class="login-close" onclick="closeLogin()"><i class="fas fa-times"></i></button>
+
+            <div class="login-logo">
+                <div class="login-logo-icon">🦿</div>
+                <span class="login-logo-text">Rehab.AR</span>
+            </div>
+
+            <div class="login-heading" id="modalHeading">Welcome back</div>
+            <div class="login-subheading" id="modalSubheading">Sign in to continue your recovery journey</div>
+
+            <!-- Tab switcher -->
+            <div class="login-tabs">
+                <button class="login-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+                <button class="login-tab" id="tabRegister" onclick="switchTab('register')">Create Account</button>
+            </div>
+
+            <!-- Role selector (shown for both tabs) -->
+            <div class="role-selector" id="roleSelector">
+                <button class="role-btn active" id="rolePatient" onclick="selectRole('patient')">
+                    <span class="role-icon">🧑‍🦽</span>
+                    Patient
+                </button>
+                <button class="role-btn" id="roleDoctor" onclick="selectRole('doctor')">
+                    <span class="role-icon">👨‍⚕️</span>
+                    Doctor
+                </button>
+                <button class="role-btn" id="roleAdmin" onclick="selectRole('admin')">
+                    <span class="role-icon">🛡️</span>
+                    Admin
+                </button>
+            </div>
+
+            <!-- Message area -->
+            <div class="form-message" id="formMessage"></div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input class="form-input" type="password" id="loginPassword" placeholder="Enter your password">
+                        <button class="toggle-pw" onclick="togglePassword('loginPassword', this)"><i
+                                class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <button class="forgot-link" onclick="showForgotPassword()">Forgot password?</button>
+                <button class="btn-login" onclick="handleLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <div class="login-divider"><span>or continue with</span></div>
+                <button class="btn-google" onclick="handleGoogleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 48 48">
+                        <path fill="#FFC107"
+                            d="M43.6 20.1H42V20H24v8h11.3C33.7 32.5 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
+                        <path fill="#FF3D00"
+                            d="M6.3 14.7l6.6 4.8C14.5 15.8 18.9 12 24 12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z" />
+                        <path fill="#4CAF50"
+                            d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.4 35.5 26.8 36 24 36c-5.3 0-9.7-3.5-11.3-8.3l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                        <path fill="#1976D2"
+                            d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C36.9 40 44 35 44 24c0-1.3-.1-2.6-.4-3.9z" />
+                    </svg>
+                    Continue with Google
+                </button>
+                <div class="login-footer-text">
+                    Don't have an account? <a onclick="switchTab('register')">Create one</a>
+                </div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="registerForm" style="display:none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <div class="input-icon-wrap">
+                            <i class="fas fa-user input-icon"></i>
+                            <input class="form-input" type="text" id="regFirstName" placeholder="Arjun">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <div class="input-icon-wrap">
+                            <i class="fas fa-user input-icon"></i>
+                            <input class="form-input" type="text" id="regLastName" placeholder="Sharma">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input class="form-input" type="email" id="regEmail" placeholder="you@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input class="form-input" type="tel" id="regPhone" placeholder="+91 98765 43210">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input class="form-input" type="password" id="regPassword"
+                            placeholder="Create a strong password">
+                        <button class="toggle-pw" onclick="togglePassword('regPassword', this)"><i
+                                class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="termsCheck">
+                    <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy
+                            Policy</a></label>
+                </div>
+                <button class="btn-login" onclick="handleRegister()">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                <div class="login-divider"><span>or continue with</span></div>
+                <button class="btn-google" onclick="handleGoogleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 48 48">
+                        <path fill="#FFC107"
+                            d="M43.6 20.1H42V20H24v8h11.3C33.7 32.5 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
+                        <path fill="#FF3D00"
+                            d="M6.3 14.7l6.6 4.8C14.5 15.8 18.9 12 24 12c3.1 0 5.8 1.1 7.9 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z" />
+                        <path fill="#4CAF50"
+                            d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.4 35.5 26.8 36 24 36c-5.3 0-9.7-3.5-11.3-8.3l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                        <path fill="#1976D2"
+                            d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C36.9 40 44 35 44 24c0-1.3-.1-2.6-.4-3.9z" />
+                    </svg>
+                    Continue with Google
+                </button>
+                <div class="login-footer-text">
+                    Already have an account? <a onclick="switchTab('login')">Sign in</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Display IP address
+        const ip = window.location.hostname;
+        if (document.getElementById('ipAddress')) {
+            document.getElementById('ipAddress').innerHTML = `http://${ip}:5000/website/index.html`;
+        }
+
+        // Mobile menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('.nav-link[onclick*="home"]').classList.add('active');
+            document.getElementById('navMenu').classList.remove('active');
+        }
+
+        // Scroll to section
+        function scrollToSection(sectionId, button) {
+            document.getElementById('navMenu').classList.remove('active');
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            button.classList.add('active');
+            const element = document.getElementById(sectionId);
+            if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Action functions
+        function startAR() { window.location.href = 'ar.html'; }
+        function showDoctor() { window.location.href = 'doctor.html'; }
+        function showPatient() { window.location.href = 'patient.html'; }
+        function showUnity() { window.location.href = 'unity.html'; }
+
+        // ===================== LOGIN MODAL LOGIC =====================
+
+        let currentTab = 'login';
+        let currentRole = 'patient';
+
+        function openLogin() {
+            document.getElementById('loginOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            clearMessage();
+        }
+
+        function closeLogin() {
+            document.getElementById('loginOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('loginOverlay')) closeLogin();
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeLogin();
+        });
+
+        function switchTab(tab) {
+            currentTab = tab;
+            clearMessage();
+
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const heading = document.getElementById('modalHeading');
+            const subheading = document.getElementById('modalSubheading');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                heading.textContent = 'Welcome back';
+                subheading.textContent = 'Sign in to continue your recovery journey';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                tabLogin.classList.remove('active');
+                tabRegister.classList.add('active');
+                heading.textContent = 'Create account';
+                subheading.textContent = 'Join thousands recovering smarter with Rehab.AR';
+            }
+        }
+
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('role' + role.charAt(0).toUpperCase() + role.slice(1)).classList.add('active');
+        }
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const el = document.getElementById('formMessage');
+            el.textContent = msg;
+            el.className = 'form-message ' + type;
+        }
+
+        function clearMessage() {
+            const el = document.getElementById('formMessage');
+            el.className = 'form-message';
+            el.textContent = '';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('Please fill in all fields.', 'error');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            // Simulate login — wire up your backend here
+            showMessage('Signing in as ' + currentRole + '...', 'success');
+            setTimeout(() => {
+                if (currentRole === 'doctor') {
+                    closeLogin();
+                    window.location.href = 'doctor.html';
+                } else if (currentRole === 'admin') {
+                    closeLogin();
+                    // window.location.href = 'admin.html';
+                    showMessage('Admin portal coming soon!', 'success');
+                } else {
+                    closeLogin();
+                    window.location.href = 'ar.html';
+                }
+            }, 1000);
+        }
+
+        function handleRegister() {
+            const firstName = document.getElementById('regFirstName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const terms = document.getElementById('termsCheck').checked;
+
+            if (!firstName || !lastName || !email || !password) {
+                showMessage('Please fill in all required fields.', 'error');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters.', 'error');
+                return;
+            }
+            if (!terms) {
+                showMessage('Please accept the Terms of Service to continue.', 'error');
+                return;
+            }
+
+            // Simulate registration — wire up your backend here
+            showMessage('Account created! Signing you in...', 'success');
+            setTimeout(() => {
+                closeLogin();
+                if (currentRole === 'doctor') window.location.href = 'doctor.html';
+                else window.location.href = 'ar.html';
+            }, 1200);
+        }
+
+        function handleGoogleLogin() {
+            showMessage('Redirecting to Google sign-in...', 'success');
+            // Wire up your Google OAuth here
+        }
+
+        function showForgotPassword() {
+            showMessage('Password reset link sent to your email!', 'success');
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+    </script>
+</body>
+
+</html>

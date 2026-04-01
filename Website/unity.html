@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Rehab.AR | 3D Physio Guide</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --dark: #0a0f1a;
+      --dark2: #0f172a;
+      --dark3: #1e293b;
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface2: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.1);
+      --blue: #5b9bd8;
+      --blue-glow: rgba(91, 155, 216, 0.25);
+      --teal: #2dd4bf;
+      --teal-glow: rgba(45, 212, 191, 0.2);
+      --purple: #8b5cf6;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --text: #f0f4f8;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --radius: 14px;
+      --font: 'Inter', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--dark);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: rgba(10, 15, 26, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--blue);
+    }
+
+    .logo span {
+      color: var(--teal);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .session-timer {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text3);
+      flex-shrink: 0;
+    }
+
+    .dot.running {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .dot.paused {
+      background: var(--amber);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.35
+      }
+    }
+
+    .back-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 30px;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: var(--purple);
+      color: white;
+      border-color: var(--purple);
+    }
+
+    /* ── MAIN LAYOUT: 3 columns ── */
+    .main {
+      display: grid;
+      grid-template-columns: 230px 1fr 300px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── LEFT: Exercise List ── */
+    .sidebar {
+      background: rgba(15, 23, 42, 0.9);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 14px 14px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .ex-list {
+      overflow-y: auto;
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ex-item {
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      background: transparent;
+    }
+
+    .ex-item:hover {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .ex-item.active {
+      background: rgba(91, 155, 216, 0.12);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 1px rgba(91, 155, 216, 0.2);
+    }
+
+    .ex-item-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .ex-item-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 8px;
+      background: rgba(45, 212, 191, 0.12);
+      color: var(--teal);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+    }
+
+    /* ── CENTER: Split — Avatar (top) + Camera (bottom) ── */
+    .center {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      position: relative;
+    }
+
+    /* Avatar viewport — top half */
+    .avatar-pane {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: linear-gradient(160deg, #0d1f35 0%, #0a1a20 100%);
+      overflow: hidden;
+    }
+
+    #three-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .avatar-label {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 26, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--blue);
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+
+    /* Timer ring overlay */
+    .ring-overlay {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ring-wrap {
+      position: relative;
+      width: 66px;
+      height: 66px;
+    }
+
+    .ring-wrap svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-sec {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ring-lbl {
+      font-size: 8px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    /* Instruction card */
+    .instr-card {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 15, 26, 0.92);
+      border: 1.5px solid var(--blue);
+      border-radius: 12px;
+      padding: 10px 18px;
+      max-width: 320px;
+      text-align: center;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(91, 155, 216, 0.2);
+    }
+
+    .instr-meta {
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .instr-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    /* Divider */
+    .center-divider {
+      height: 5px;
+      background: var(--dark);
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--text3);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: ns-resize;
+      user-select: none;
+    }
+
+    .center-divider span {
+      background: var(--dark);
+      padding: 0 8px;
+    }
+
+    /* Camera pane — bottom half */
+    .camera-pane {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .camera-pane iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .panel {
+      background: rgba(15, 23, 42, 0.9);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sec-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+
+    /* Metrics */
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 6px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-val.blue {
+      color: var(--blue);
+    }
+
+    .metric-val.teal {
+      color: var(--teal);
+    }
+
+    .metric-val.green {
+      color: var(--green);
+    }
+
+    .metric-lbl {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    /* Exercise info */
+    .ex-info-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .ex-info-desc {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .ex-info-target {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(45, 212, 191, 0.1);
+      color: var(--teal);
+      border: 1px solid rgba(45, 212, 191, 0.2);
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    /* Steps */
+    .steps-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step {
+      display: flex;
+      gap: 8px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .step.done {
+      background: rgba(74, 222, 128, 0.06);
+      border-color: rgba(74, 222, 128, 0.2);
+      opacity: 0.65;
+    }
+
+    .step.active {
+      background: rgba(91, 155, 216, 0.12);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 1px rgba(91, 155, 216, 0.15);
+    }
+
+    .step.pending {
+      background: transparent;
+      border-color: var(--border);
+      opacity: 0.45;
+    }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .step.done .step-num {
+      background: var(--green);
+      color: #000;
+    }
+
+    .step.active .step-num {
+      background: var(--blue);
+      color: #000;
+    }
+
+    .step.pending .step-num {
+      background: var(--surface2);
+      color: var(--text3);
+    }
+
+    .step-txt {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .step.done .step-txt {
+      color: var(--text3);
+      text-decoration: line-through;
+    }
+
+    /* Controls */
+    .controls {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 10px;
+      border-radius: 9px;
+      border: none;
+      font-family: var(--font);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .btn-start {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: #4a88c5;
+    }
+
+    .btn-pause {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-pause:hover:not(:disabled) {
+      background: var(--amber);
+      color: #000;
+      border-color: var(--amber);
+    }
+
+    .btn-reset {
+      background: var(--surface);
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+
+    .btn-reset:hover {
+      background: var(--surface2);
+    }
+
+    .btn-next {
+      background: var(--teal);
+      color: #000;
+    }
+
+    .btn-next:hover:not(:disabled) {
+      background: #22c7b0;
+    }
+
+    .btn-voice {
+      background: var(--surface2);
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+
+    .btn-voice.on {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--green);
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: linear-gradient(135deg, #0a0f1a, #0f1629);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s;
+    }
+
+    .loader {
+      text-align: center;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 16px;
+      border: 3px solid rgba(91, 155, 216, 0.2);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader-text {
+      color: var(--text2);
+      font-size: 13px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Loading -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loader">
+      <div class="spinner"></div>
+      <div class="loader-text">Loading Rehab.AR...</div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">Rehab<span>.AR</span></div>
+    <div class="header-right">
+      <div class="status-pill">
+        <div class="dot" id="dot"></div><span id="statusTxt">Ready</span>
+      </div>
+      <div class="session-timer" id="sessionTime">00:00</div>
+      <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Home</a>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- LEFT: Exercise list -->
+    <div class="sidebar">
+      <div class="sidebar-header">Exercise Library</div>
+      <div class="ex-list" id="exList"></div>
+    </div>
+
+    <!-- CENTER: Avatar top + Camera bottom -->
+    <div class="center">
+
+      <!-- Avatar pane -->
+      <div class="avatar-pane" id="avatarPane">
+        <canvas id="three-canvas"></canvas>
+        <div class="avatar-label" id="avatarLabel">Select an exercise</div>
+
+        <!-- Timer ring -->
+        <div class="ring-overlay">
+          <div class="ring-wrap">
+            <svg width="66" height="66" viewBox="0 0 66 66">
+              <circle cx="33" cy="33" r="27" fill="none" stroke="rgba(91,155,216,0.15)" stroke-width="6" />
+              <circle cx="33" cy="33" r="27" fill="none" stroke="var(--blue)" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="169.6" stroke-dashoffset="169.6" id="timerRing"
+                style="transition:stroke-dashoffset 0.3s linear" />
+            </svg>
+            <div class="ring-center">
+              <div class="ring-sec" id="ringTime">--</div>
+              <div class="ring-lbl">sec</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instruction card -->
+        <div class="instr-card" id="instrCard" style="display:none">
+          <div class="instr-meta" id="instrMeta">Step 1 of 5</div>
+          <div class="instr-text" id="instrText"></div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="center-divider"><span>▲ Avatar Guide &nbsp;·&nbsp; Camera Detector ▼</span></div>
+
+      <!-- Camera pane -->
+      <div class="camera-pane" id="cameraPane">
+        <iframe src="unity/index.html" id="unityFrame" onload="onUnityLoaded()"></iframe>
+      </div>
+
+    </div><!-- /center -->
+
+    <!-- RIGHT: Panel -->
+    <div class="panel">
+
+      <div class="panel-section">
+        <div class="sec-label">Session Metrics</div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-val blue" id="repCount">0</div>
+            <div class="metric-lbl">Reps</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val teal" id="setCount">0</div>
+            <div class="metric-lbl">Sets</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val green" id="targetVal">—</div>
+            <div class="metric-lbl">Target</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="sec-label">Exercise Info</div>
+        <div id="exInfoName" class="ex-info-name">No exercise selected</div>
+        <div id="exInfoDesc" class="ex-info-desc">Choose an exercise from the left panel to begin your guided session.
+        </div>
+        <div id="exInfoTarget" style="display:none">
+          <div class="ex-info-target" id="exInfoTargetTxt"></div>
+        </div>
+      </div>
+
+      <div class="steps-list" id="stepsList">
+        <div style="color:var(--text3);font-size:12px;padding:8px 2px">No steps loaded yet.</div>
+      </div>
+
+      <div class="controls">
+        <div class="btn-row">
+          <button class="btn btn-start" id="btnStart" onclick="startEx()" disabled>▶ Start</button>
+          <button class="btn btn-pause" id="btnPause" onclick="pauseEx()" disabled>⏸ Pause</button>
+          <button class="btn btn-reset" onclick="resetEx()">↺ Reset</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-next" onclick="nextStep()" id="btnNext" disabled>Next Step →</button>
+          <button class="btn btn-voice" id="btnVoice" onclick="toggleVoice()">🔊 Voice</button>
+        </div>
+      </div>
+
+    </div><!-- /panel -->
+  </div><!-- /main -->
+
+  <script>
+    // ============================================================
+    // EXERCISES
+    // ============================================================
+    const EXERCISES = [
+      {
+        id: 'shoulder_pendulum', name: 'Shoulder Pendulum', region: 'Shoulder',
+        desc: 'Gravity-assisted exercise that distracts the shoulder joint, reducing pain and stiffness. Ideal for frozen shoulder and post-surgical recovery.',
+        sets: 3, reps: 10, stepDur: 8, animation: 'pendulum',
+        steps: [
+          'Stand beside a sturdy chair, lean forward and support yourself with your unaffected arm.',
+          'Let your affected arm hang completely relaxed, straight down toward the floor.',
+          'Gently swing the arm in small clockwise circles — about 30 cm diameter.',
+          'After 10 circles, reverse anticlockwise for another 10 circles.',
+          'Slowly stand upright and rest. Repeat for all sets.'
+        ]
+      },
+      {
+        id: 'seated_knee_raise', name: 'Seated Knee Raise', region: 'Knee',
+        desc: 'Strengthens hip flexors and quadriceps while protecting the knee joint. Perfect for early-stage knee rehabilitation.',
+        sets: 3, reps: 12, stepDur: 6, animation: 'knee_raise',
+        steps: [
+          'Sit upright in a firm chair with feet flat on the floor, hip-width apart.',
+          'Place hands on thighs or chair sides for stability.',
+          'Slowly lift your right knee upward — thigh about 15 cm off the seat.',
+          'Hold for 3 seconds keeping back straight and core lightly engaged.',
+          'Lower slowly. Switch legs and alternate for the full rep count.'
+        ]
+      },
+      {
+        id: 'hip_hinge', name: 'Hip Hinge', region: 'Hip',
+        desc: 'Teaches correct hip mechanics and activates glutes and hamstrings. A fundamental movement for back pain prevention and lower-limb rehab.',
+        sets: 3, reps: 10, stepDur: 7, animation: 'hip_hinge',
+        steps: [
+          'Stand tall, feet shoulder-width apart, slight knee bend.',
+          'Place hands on hips or extend forward for balance.',
+          'Push hips back as if touching a wall behind you — keep back flat.',
+          'Hinge until torso is roughly parallel to the floor — feel the hamstring stretch.',
+          'Drive hips forward to stand, squeeze glutes at top. Repeat smoothly.'
+        ]
+      },
+      {
+        id: 'ankle_circles', name: 'Ankle Circles', region: 'Ankle',
+        desc: 'Improves ankle mobility and circulation. Excellent for post-fracture rehab, oedema reduction and preventing stiffness after bed rest.',
+        sets: 2, reps: 15, stepDur: 5, animation: 'ankle_circles',
+        steps: [
+          'Sit with back supported. Extend one leg slightly off the floor.',
+          'Point your toes forward (plantarflexion) and hold 2 seconds.',
+          'Slowly rotate foot in large clockwise circles — ankle only.',
+          'Complete 10 circles, then reverse anticlockwise for 10 more.',
+          'Switch to the other foot. Keep movement slow and controlled.'
+        ]
+      },
+      {
+        id: 'neck_retraction', name: 'Neck Retraction', region: 'Neck',
+        desc: 'Corrects forward head posture and reduces cervical strain. Prescribed for neck pain, headaches and cervicogenic dizziness.',
+        sets: 3, reps: 10, stepDur: 6, animation: 'neck_retraction',
+        steps: [
+          'Sit upright, shoulders relaxed, gaze forward at eye level.',
+          'Imagine a string pulling the top of your head gently upward.',
+          'Without tilting chin, draw your head straight backwards.',
+          'Feel a gentle stretch at the base of skull and back of neck.',
+          'Hold 5 seconds then slowly return to neutral. Keep it pain-free.'
+        ]
+      }
+    ];
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    const S = {
+      ex: null, running: false, paused: false,
+      step: 0, reps: 0, sets: 0,
+      stepTimer: 0, totalStepTime: 0,
+      stepIv: null, sessionIv: null, sessionSec: 0,
+      voice: false
+    };
+
+    // ============================================================
+    // BUILD EXERCISE LIST
+    // ============================================================
+    const listEl = document.getElementById('exList');
+    EXERCISES.forEach(ex => {
+      const d = document.createElement('div');
+      d.className = 'ex-item'; d.id = 'ei-' + ex.id;
+      d.innerHTML = `<div class="ex-item-name">${ex.name}</div><div class="ex-item-tag">${ex.region}</div>`;
+      d.onclick = () => selectEx(ex);
+      listEl.appendChild(d);
+    });
+
+    // ============================================================
+    // THREE.JS AVATAR
+    // ============================================================
+    const canvas3 = document.getElementById('three-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas3, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0a1220, 0.08);
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 1.1, 3.8);
+
+    // Lighting
+    scene.add(new THREE.AmbientLight(0x8ab4d8, 0.6));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+    dir.position.set(3, 5, 4); dir.castShadow = true;
+    dir.shadow.mapSize.set(1024, 1024);
+    scene.add(dir);
+    const fill = new THREE.DirectionalLight(0x5b9bd8, 0.4);
+    fill.position.set(-3, 2, -2); scene.add(fill);
+    const rim = new THREE.DirectionalLight(0x2dd4bf, 0.25);
+    rim.position.set(0, -2, 3); scene.add(rim);
+
+    // Grid floor
+    const gridHelper = new THREE.GridHelper(6, 20, 0x1e3a5f, 0x152840);
+    gridHelper.position.y = -0.01;
+    scene.add(gridHelper);
+
+    // Floor circle
+    const floorM = new THREE.Mesh(
+      new THREE.CircleGeometry(2, 48),
+      new THREE.MeshLambertMaterial({ color: 0x0d1f35, transparent: true, opacity: 0.8 })
+    );
+    floorM.rotation.x = -Math.PI / 2; floorM.receiveShadow = true;
+    scene.add(floorM);
+
+    // ---- AVATAR ----
+    const AG = new THREE.Group();
+    scene.add(AG);
+
+    function mesh(geo, col) {
+      const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: col }));
+      m.castShadow = true; return m;
+    }
+
+    const SKIN = 0xf5c9a0, SHIRT = 0x1e4d7a, PANT = 0x1e3347, SHOE = 0x111c28, HAIR = 0x1a0f0a;
+
+    const torso = mesh(new THREE.CylinderGeometry(0.2, 0.185, 0.52, 12), SHIRT);
+    torso.position.set(0, 0.88, 0); AG.add(torso);
+
+    const head = mesh(new THREE.SphereGeometry(0.17, 14, 12), SKIN);
+    head.position.set(0, 1.58, 0); AG.add(head);
+
+    const hair = mesh(new THREE.SphereGeometry(0.175, 14, 8), HAIR);
+    hair.position.set(0, 1.64, -0.01); hair.scale.y = 0.52; AG.add(hair);
+
+    const neck = mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.13, 10), SKIN);
+    neck.position.set(0, 1.39, 0); AG.add(neck);
+
+    const hips = mesh(new THREE.CylinderGeometry(0.215, 0.195, 0.2, 12), PANT);
+    hips.position.set(0, 0.58, 0); AG.add(hips);
+
+    // Arms
+    function makeArm(side) {
+      const g = new THREE.Group();
+      g.position.set(side * 0.285, 1.08, 0);
+      const ua = mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.3, 10), SHIRT);
+      ua.position.set(0, -0.17, 0); g.add(ua);
+      const la = mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.27, 10), SKIN);
+      la.position.set(0, -0.4, 0); g.add(la);
+      const hand = mesh(new THREE.SphereGeometry(0.06, 8, 7), SKIN);
+      hand.position.set(0, -0.57, 0); g.add(hand);
+      AG.add(g); return g;
+    }
+    const armL = makeArm(-1), armR = makeArm(1);
+
+    // Legs
+    function makeLeg(side) {
+      const g = new THREE.Group();
+      g.position.set(side * 0.115, 0.47, 0);
+      const ul = mesh(new THREE.CylinderGeometry(0.09, 0.077, 0.38, 10), PANT);
+      ul.position.set(0, -0.2, 0); g.add(ul);
+      const ll = mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.36, 10), 0x2a4a68);
+      ll.position.set(0, -0.56, 0); g.add(ll);
+      const foot = mesh(new THREE.BoxGeometry(0.09, 0.065, 0.2), SHOE);
+      foot.position.set(0, -0.78, 0.03); g.add(foot);
+      AG.add(g); return g;
+    }
+    const legL = makeLeg(-1), legR = makeLeg(1);
+
+    AG.position.y = 0.01;
+
+    // Particle dust
+    const pGeo = new THREE.BufferGeometry();
+    const pCount = 80;
+    const pPos = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount; i++) {
+      pPos[i * 3] = (Math.random() - 0.5) * 4;
+      pPos[i * 3 + 1] = Math.random() * 3;
+      pPos[i * 3 + 2] = (Math.random() - 0.5) * 4;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0x5b9bd8, size: 0.025, transparent: true, opacity: 0.35 }));
+    scene.add(particles);
+
+    // Orbit
+    let drag = false, lastX = 0, lastY = 0, camTheta = 0, camPhi = 0.1;
+    canvas3.addEventListener('mousedown', e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
+    canvas3.addEventListener('mousemove', e => {
+      if (!drag) return;
+      camTheta -= (e.clientX - lastX) * 0.007;
+      camPhi = Math.max(-0.3, Math.min(0.8, camPhi + (e.clientY - lastY) * 0.006));
+      lastX = e.clientX; lastY = e.clientY;
+    });
+    ['mouseup', 'mouseleave'].forEach(ev => canvas3.addEventListener(ev, () => drag = false));
+    canvas3.addEventListener('touchstart', e => { drag = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }, { passive: true });
+    canvas3.addEventListener('touchmove', e => {
+      if (!drag) return;
+      camTheta -= (e.touches[0].clientX - lastX) * 0.007;
+      camPhi = Math.max(-0.3, Math.min(0.8, camPhi + (e.touches[0].clientY - lastY) * 0.006));
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    }, { passive: false });
+    canvas3.addEventListener('touchend', () => drag = false);
+
+    // ── ANIMATIONS ──
+    const anims = {
+      pendulum: t => {
+        const sw = Math.sin(t * 1.8) * 0.55, swz = Math.cos(t * 1.8) * 0.3;
+        armL.rotation.z = sw; armL.rotation.x = swz;
+        armR.rotation.z = 0.05; armR.rotation.x = 0;
+        torso.rotation.z = sw * 0.1;
+        legL.rotation.x = 0; legR.rotation.x = 0;
+        AG.rotation.x = 0; AG.position.y = 0.01;
+        head.position.set(0, 1.58, 0);
+      },
+      knee_raise: t => {
+        const ph = (Math.sin(t * 1.2) + 1) / 2;
+        legL.rotation.x = -ph * 0.9; legR.rotation.x = 0;
+        armL.rotation.z = -0.08; armR.rotation.z = 0.08;
+        armL.rotation.x = 0; armR.rotation.x = 0;
+        torso.rotation.z = 0; AG.rotation.x = 0; AG.position.y = 0.01;
+        head.position.set(0, 1.58, 0);
+      },
+      hip_hinge: t => {
+        const h = (Math.sin(t * 1.0) + 1) / 2;
+        AG.rotation.x = h * 0.6; AG.position.y = -h * 0.18 + 0.01;
+        armL.rotation.z = -h * 0.55; armR.rotation.z = h * 0.55;
+        armL.rotation.x = h * 0.25; armR.rotation.x = h * 0.25;
+        legL.rotation.x = h * 0.12; legR.rotation.x = h * 0.12;
+        torso.rotation.z = 0; head.position.set(0, 1.58, 0);
+      },
+      ankle_circles: t => {
+        const c = t * 2.0;
+        legL.rotation.x = Math.sin(c) * 0.28; legL.rotation.z = Math.cos(c) * 0.18;
+        legR.rotation.x = 0; legR.rotation.z = 0;
+        armL.rotation.z = -0.08; armR.rotation.z = 0.08;
+        armL.rotation.x = 0; armR.rotation.x = 0;
+        AG.rotation.x = 0; AG.position.y = 0.01;
+        torso.rotation.z = 0; head.position.set(0, 1.58, 0);
+      },
+      neck_retraction: t => {
+        const r = (Math.sin(t * 1.4) + 1) / 2;
+        head.position.z = -r * 0.11; head.position.y = 1.58;
+        armL.rotation.z = 0; armR.rotation.z = 0;
+        armL.rotation.x = 0; armR.rotation.x = 0;
+        legL.rotation.x = 0; legR.rotation.x = 0;
+        AG.rotation.x = 0; AG.position.y = 0.01; torso.rotation.z = 0;
+      },
+      idle: t => {
+        const s = Math.sin(t * 0.55) * 0.01;
+        AG.rotation.z = s;
+        armL.rotation.z = s * 0.4 - 0.04; armR.rotation.z = -s * 0.4 + 0.04;
+        armL.rotation.x = 0; armR.rotation.x = 0;
+        legL.rotation.x = 0; legR.rotation.x = 0;
+        AG.rotation.x = 0; AG.position.y = 0.01;
+        torso.rotation.z = 0; head.position.set(0, 1.58, 0);
+      }
+    };
+
+    function resetPose() {
+      [armL, armR, legL, legR].forEach(g => g.rotation.set(0, 0, 0));
+      AG.rotation.set(0, 0, 0); AG.position.y = 0.01;
+      torso.rotation.set(0, 0, 0); head.position.set(0, 1.58, 0);
+    }
+
+    // Render loop
+    const CAM_R = 3.8;
+    (function loop(ts) {
+      requestAnimationFrame(loop);
+      const t = ts / 1000;
+      // Camera
+      camera.position.x = CAM_R * Math.sin(camTheta) * Math.cos(camPhi);
+      camera.position.y = 1.0 + CAM_R * Math.sin(camPhi);
+      camera.position.z = CAM_R * Math.cos(camTheta) * Math.cos(camPhi);
+      camera.lookAt(0, 0.85, 0);
+      // Particle drift
+      particles.rotation.y = t * 0.04;
+      // Animation
+      if (S.ex && S.running && !S.paused) (anims[S.ex.animation] || anims.idle)(t);
+      else if (!S.ex) anims.idle(t);
+      // Resize
+      const p = canvas3.parentElement;
+      const w = p.clientWidth, h = p.clientHeight;
+      if (renderer.domElement.width !== w || renderer.domElement.height !== h) {
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+      }
+      renderer.render(scene, camera);
+    })(0);
+
+    // ============================================================
+    // EXERCISE LOGIC
+    // ============================================================
+    function selectEx(ex) {
+      resetEx();
+      S.ex = ex;
+      document.querySelectorAll('.ex-item').forEach(e => e.classList.remove('active'));
+      document.getElementById('ei-' + ex.id).classList.add('active');
+      document.getElementById('avatarLabel').textContent = ex.name;
+      document.getElementById('exInfoName').textContent = ex.name;
+      document.getElementById('exInfoDesc').textContent = ex.desc;
+      document.getElementById('exInfoTargetTxt').textContent = `${ex.sets} sets × ${ex.reps} reps`;
+      document.getElementById('exInfoTarget').style.display = 'block';
+      document.getElementById('targetVal').textContent = ex.reps;
+      renderSteps();
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnNext').disabled = false;
+      setStatus('idle');
+    }
+
+    function renderSteps() {
+      const ex = S.ex; if (!ex) return;
+      const el = document.getElementById('stepsList'); el.innerHTML = '';
+      ex.steps.forEach((txt, i) => {
+        const d = document.createElement('div');
+        let cls = i < S.step ? 'done' : i === S.step ? 'active' : 'pending';
+        d.className = 'step ' + cls;
+        const n = i < S.step ? '✓' : (i + 1);
+        d.innerHTML = `<div class="step-num">${n}</div><div class="step-txt">${txt}</div>`;
+        el.appendChild(d);
+      });
+      el.children[S.step]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showInstr() {
+      const ex = S.ex; if (!ex) return;
+      const c = document.getElementById('instrCard');
+      document.getElementById('instrMeta').textContent = `Step ${S.step + 1} of ${ex.steps.length}`;
+      document.getElementById('instrText').textContent = ex.steps[S.step];
+      c.style.display = 'block';
+      if (S.voice) speak(ex.steps[S.step]);
+    }
+
+    function startStepTimer() {
+      clearInterval(S.stepIv);
+      S.stepTimer = S.ex.stepDur; S.totalStepTime = S.ex.stepDur;
+      updateRing();
+      S.stepIv = setInterval(() => {
+        if (S.paused) return;
+        S.stepTimer--;
+        updateRing();
+        if (S.stepTimer <= 0) { clearInterval(S.stepIv); autoAdv(); }
+      }, 1000);
+    }
+
+    function updateRing() {
+      const ring = document.getElementById('timerRing');
+      const rt = document.getElementById('ringTime');
+      const pct = S.totalStepTime > 0 ? S.stepTimer / S.totalStepTime : 0;
+      ring.style.strokeDashoffset = 169.6 * (1 - pct);
+      ring.style.stroke = S.stepTimer <= 3 ? '#f87171' : 'var(--blue)';
+      rt.textContent = S.stepTimer > 0 ? S.stepTimer : '--';
+    }
+
+    function autoAdv() {
+        const ex = S.ex; if (!ex || !S.running) return;
+        S.step++;
+        if (S.step >= ex.steps.length) {
+          S.reps++;
+          document.getElementById('repCount').textContent = S.reps;
+          if (S.reps >= ex.reps) {
+            S.sets++; S.reps = 0;
+            document.getElementById('setCount').textContent = S.sets;
+            document.getElementById('repCount').textContent = S.reps;
+            if (S.sets >= ex.sets) { finishEx(); return; }
+            if (S.voice) speak(`Set ${S.sets} complete. Starting next set.`);
+          }
+          S.step = 0;
+        }
+        renderSteps(); showInstr(); startStepTimer();
+      }
+
+    function startEx() {
+      if (!S.ex) return;
+      if (S.paused) {
+        S.paused = false;
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnPause').disabled = false;
+        setStatus('running');
+        if (S.voice) speak('Resuming.');
+        return;
+      }
+      S.running = true; S.paused = false; S.step = 0; S.reps = 0; S.sets = 0;
+      document.getElementById('repCount').textContent = 0;
+      document.getElementById('setCount').textContent = 0;
+      document.getElementById('btnStart').disabled = true;
+      document.getElementById('btnPause').disabled = false;
+      setStatus('running');
+      if (!S.sessionIv) {
+        S.sessionSec = 0;
+        S.sessionIv = setInterval(() => {
+          if (S.paused) return;
+          S.sessionSec++;
+          const m = String(Math.floor(S.sessionSec / 60)).padStart(2, '0');
+          const s = String(S.sessionSec % 60).padStart(2, '0');
+          document.getElementById('sessionTime').textContent = `${m}:${s}`;
+        }, 1000);
+      }
+      renderSteps(); showInstr(); startStepTimer();
+      if (S.voice) speak(`Starting ${S.ex.name}. ${S.ex.steps[0]}`);
+    }
+
+    function pauseEx() {
+      S.paused = true;
+      document.getElementById('btnStart').textContent = '▶ Resume';
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnPause').disabled = true;
+      setStatus('paused');
+      if (S.voice) speak('Paused.');
+    }
+
+    function resetEx() {
+      clearInterval(S.stepIv); clearInterval(S.sessionIv);
+      S.stepIv = null; S.sessionIv = null;
+      S.running = false; S.paused = false; S.step = 0; S.reps = 0; S.sets = 0; S.stepTimer = 0; S.sessionSec = 0;
+      document.getElementById('repCount').textContent = 0;
+      document.getElementById('setCount').textContent = 0;
+      document.getElementById('sessionTime').textContent = '00:00';
+      document.getElementById('ringTime').textContent = '--';
+      document.getElementById('timerRing').style.strokeDashoffset = 169.6;
+      document.getElementById('btnStart').textContent = '▶ Start';
+      document.getElementById('btnStart').disabled = !S.ex;
+      document.getElementById('btnPause').disabled = true;
+      document.getElementById('instrCard').style.display = 'none';
+      setStatus('idle');
+      resetPose();
+      if (S.ex) renderSteps();
+    }
+
+    function nextStep() {
+      if (!S.running) return;
+      clearInterval(S.stepIv); autoAdv();
+    }
+
+    function finishEx() {
+      clearInterval(S.stepIv); clearInterval(S.sessionIv);
+      S.running = false;
+      document.getElementById('btnStart').textContent = '▶ Restart';
+      document.getElementById('btnStart').disabled = false;
+      document.getElementById('btnPause').disabled = true;
+      document.getElementById('instrCard').style.display = 'none';
+      setStatus('idle');
+      const ex = S.ex;
+      if (S.voice) speak(`Excellent work! ${ex.name} complete. ${ex.sets} sets finished.`);
+      alert(`🎉 Session Complete!\n${ex.name}\n${ex.sets} sets × ${ex.reps} reps\nTime: ${document.getElementById('sessionTime').textContent}`);
+    }
+
+    function toggleVoice() {
+      S.voice = !S.voice;
+      const b = document.getElementById('btnVoice');
+      b.classList.toggle('on', S.voice);
+      b.textContent = S.voice ? '🔊 Voice On' : '🔊 Voice';
+      if (S.voice) speak('Voice guidance enabled.');
+    }
+
+    function speak(txt) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.rate = 0.88; u.pitch = 1.0; u.volume = 1.0;
+      const vs = window.speechSynthesis.getVoices();
+      const pref = vs.find(v => v.lang.startsWith('en') && v.localService) || vs.find(v => v.lang.startsWith('en'));
+      if (pref) u.voice = pref;
+      window.speechSynthesis.speak(u);
+    }
+
+    function setStatus(s) {
+      const d = document.getElementById('dot');
+      const t = document.getElementById('statusTxt');
+      d.className = 'dot ' + s;
+      t.textContent = s === 'idle' ? 'Ready' : s === 'running' ? 'Running' : 'Paused';
+    }
+
+    // ============================================================
+    // LOADING
+    // ============================================================
+    function onUnityLoaded() {
+      setTimeout(() => {
+        const o = document.getElementById('loadingOverlay');
+        o.style.opacity = '0';
+        setTimeout(() => o.style.display = 'none', 500);
+      }, 800);
+    }
+    setTimeout(() => { onUnityLoaded(); }, 6000);
+
+    // Init
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('btnPause').disabled = true;
+    document.getElementById('btnNext').disabled = true;
+  </script>
+</body>
+
+</html>

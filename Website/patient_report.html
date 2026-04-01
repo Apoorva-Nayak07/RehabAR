@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rehab.AR | Patient Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #8b5cf6;
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            color: white;
+            font-size: 28px;
+        }
+
+        .patient-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .patient-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .patient-details {
+            color: #94a3b8;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        canvas {
+            max-height: 300px;
+            width: 100%;
+        }
+
+        /* Exercise Table */
+        .exercise-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 12px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .badge.success {
+            background: #4ade80;
+            color: #000;
+        }
+
+        .badge.warning {
+            background: #f97316;
+            color: #fff;
+        }
+
+        /* Print Button */
+        .print-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        @media print {
+
+            .back-btn,
+            .print-btn {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .stat-card,
+            .chart-card,
+            .exercise-table,
+            .patient-info {
+                background: white;
+                border: 1px solid #ddd;
+            }
+
+            .stat-value {
+                color: #6366f1;
+            }
+
+            h1,
+            .patient-name,
+            .chart-title {
+                color: #000;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <h1><i class="fas fa-file-alt"></i> Patient Report</h1>
+            <button class="back-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+        </div>
+
+        <!-- Patient Information -->
+        <div class="patient-info" id="patientInfo">
+            <div class="patient-name" id="patientName">Patient #001</div>
+            <div class="patient-details">
+                <span><i class="fas fa-calendar"></i> Surgery: Knee Replacement</span>
+                <span><i class="fas fa-clock"></i> Day 14 of Recovery</span>
+                <span><i class="fas fa-chart-line"></i> Progress: 87%</span>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalReps">0</div>
+                <div class="stat-label">Total Reps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgAccuracy">0%</div>
+                <div class="stat-label">Average Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPoints">0</div>
+                <div class="stat-label">Points Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bestStreak">0</div>
+                <div class="stat-label">Best Streak</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-chart-line"></i> Accuracy Trend (Last 7 Days)</div>
+                <canvas id="accuracyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title"><i class="fas fa-chart-bar"></i> Daily Reps (Last 7 Days)</div>
+                <canvas id="repsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Exercise History -->
+        <div class="exercise-table">
+            <div class="chart-title"><i class="fas fa-history"></i> Exercise History</div>
+            <table id="exerciseTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Exercise</th>
+                        <th>Reps</th>
+                        <th>Accuracy</th>
+                        <th>Points</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="exerciseTableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <button class="print-btn" onclick="window.print()">
+            <i class="fas fa-download"></i> Download Report
+        </button>
+    </div>
+
+    <script>
+        // Get patient ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientId = urlParams.get('id') || '001';
+
+        // Mock patient data based on ID
+        // Complete patient data for all patients
+            const patientData = {
+                '001': {
+                    name: 'Patient #001',
+                    surgery: 'Knee Replacement',
+                    day: 14,
+                    progress: 87,
+                    totalReps: 342,
+                    avgAccuracy: 87,
+                    totalPoints: 1250,
+                    bestStreak: 15,
+                    history: [
+                        { date: 'Mar 17', reps: 42, accuracy: 85, points: 85, status: 'good' },
+                        { date: 'Mar 18', reps: 38, accuracy: 82, points: 82, status: 'good' },
+                        { date: 'Mar 19', reps: 45, accuracy: 88, points: 88, status: 'good' },
+                        { date: 'Mar 20', reps: 52, accuracy: 91, points: 95, status: 'excellent' },
+                        { date: 'Mar 21', reps: 48, accuracy: 89, points: 89, status: 'good' },
+                        { date: 'Mar 22', reps: 55, accuracy: 94, points: 100, status: 'excellent' },
+                        { date: 'Mar 23', reps: 62, accuracy: 96, points: 105, status: 'excellent' }
+                    ]
+                },
+                '002': {
+                    name: 'Patient #002',
+                    surgery: 'Shoulder Surgery',
+                    day: 7,
+                    progress: 92,
+                    totalReps: 187,
+                    avgAccuracy: 92,
+                    totalPoints: 890,
+                    bestStreak: 10,
+                    history: [
+                        { date: 'Mar 17', reps: 25, accuracy: 88, points: 88, status: 'good' },
+                        { date: 'Mar 18', reps: 28, accuracy: 90, points: 90, status: 'good' },
+                        { date: 'Mar 19', reps: 30, accuracy: 92, points: 92, status: 'good' },
+                        { date: 'Mar 20', reps: 32, accuracy: 93, points: 93, status: 'good' },
+                        { date: 'Mar 21', reps: 35, accuracy: 94, points: 94, status: 'excellent' },
+                        { date: 'Mar 22', reps: 37, accuracy: 95, points: 95, status: 'excellent' },
+                        { date: 'Mar 23', reps: 40, accuracy: 96, points: 96, status: 'excellent' }
+                    ]
+                },
+                '003': {
+                    name: 'Patient #003',
+                    surgery: 'Ankle Injury',
+                    day: 21,
+                    progress: 78,
+                    totalReps: 215,
+                    avgAccuracy: 78,
+                    totalPoints: 620,
+                    bestStreak: 5,
+                    history: [
+                        { date: 'Mar 17', reps: 28, accuracy: 75, points: 75, status: 'warning' },
+                        { date: 'Mar 18', reps: 25, accuracy: 72, points: 72, status: 'warning' },
+                        { date: 'Mar 19', reps: 30, accuracy: 78, points: 78, status: 'good' },
+                        { date: 'Mar 20', reps: 32, accuracy: 80, points: 80, status: 'good' },
+                        { date: 'Mar 21', reps: 28, accuracy: 76, points: 76, status: 'warning' },
+                        { date: 'Mar 22', reps: 35, accuracy: 82, points: 82, status: 'good' },
+                        { date: 'Mar 23', reps: 37, accuracy: 85, points: 85, status: 'good' }
+                    ]
+                }
+                // Add more patients as needed...
+            };
+        // Get data for selected patient
+        const data = patientData[patientId] || patientData['001'];
+
+        // Update UI with patient data
+        document.getElementById('patientName').innerHTML = data.name;
+        document.getElementById('totalReps').innerHTML = data.totalReps;
+        document.getElementById('avgAccuracy').innerHTML = data.avgAccuracy + '%';
+        document.getElementById('totalPoints').innerHTML = data.totalPoints;
+        document.getElementById('bestStreak').innerHTML = data.bestStreak;
+
+        // Update patient info details
+        const patientInfo = document.getElementById('patientInfo');
+        patientInfo.innerHTML = `
+            <div class="patient-name">${data.name}</div>
+            <div class="patient-details">
+                <span><i class="fas fa-calendar"></i> Surgery: ${data.surgery}</span>
+                <span><i class="fas fa-clock"></i> Day ${data.day} of Recovery</span>
+                <span><i class="fas fa-chart-line"></i> Progress: ${data.progress}%</span>
+            </div>
+        `;
+
+        // Prepare chart data
+        const dates = data.history.map(h => h.date);
+        const accuracyData = data.history.map(h => h.accuracy);
+        const repsData = data.history.map(h => h.reps);
+
+        // Accuracy Chart
+        const ctx1 = document.getElementById('accuracyChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Accuracy (%)',
+                    data: accuracyData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#8b5cf6',
+                    pointBorderColor: 'white',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: 'white' } }
+                },
+                scales: {
+                    y: {
+                        min: 70,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: 'white' }
+                    },
+                    x: { ticks: { color: 'white' } }
+                }
+            }
+        });
+
+        // Reps Chart
+        const ctx2 = document.getElementById('repsChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Daily Reps',
+                    data: repsData,
+                    backgroundColor: 'rgba(139, 92, 246, 0.6)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { labels: { color: 'white' } }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: 'white' }
+                    },
+                    x: { ticks: { color: 'white' } }
+                }
+            }
+        });
+
+        // Populate exercise table
+        const tableBody = document.getElementById('exerciseTableBody');
+        data.history.reverse().forEach(exercise => {
+            const row = document.createElement('tr');
+            const statusClass = exercise.status === 'excellent' ? 'success' : 'warning';
+            const statusText = exercise.status === 'excellent' ? 'Excellent' : 'Good';
+
+            row.innerHTML = `
+                <td>${exercise.date}</td>
+                <td>Knee Extension</td>
+                <td>${exercise.reps}</td>
+                <td>${exercise.accuracy}%</td>
+                <td>+${exercise.points}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        function goBack() {
+            window.location.href = 'doctor.html';
+        }
+    </script>
+</body>
+
+</html>

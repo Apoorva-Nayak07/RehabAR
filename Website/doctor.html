@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Rehab.AR | Doctor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 22px;
+            border-radius: 50px;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .patient-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            padding: 10px 22px;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+        }
+
+        .patient-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Summary stats strip */
+        .summary-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s;
+        }
+
+        .summary-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .s-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .s-icon.purple {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .s-icon.green {
+            background: rgba(74, 222, 128, 0.15);
+        }
+
+        .s-icon.orange {
+            background: rgba(251, 146, 60, 0.15);
+        }
+
+        .s-icon.red {
+            background: rgba(248, 113, 113, 0.15);
+        }
+
+        .s-val {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+        }
+
+        .s-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Patient section */
+        .patient-section {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 22px;
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #8b5cf6;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px 16px;
+        }
+
+        .search-box i {
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            width: 200px;
+        }
+
+        .search-box input::placeholder {
+            color: #475569;
+        }
+
+        /* Table */
+        .patient-table {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px;
+            color: #e2e8f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(139, 92, 246, 0.06);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .patient-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .acc-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .acc-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .acc-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        }
+
+        .acc-fill.good {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        .acc-fill.warn {
+            background: linear-gradient(90deg, #f97316, #fb923c);
+        }
+
+        .acc-fill.danger {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-badge.on-track {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .status-badge.excellent {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .status-badge.attention {
+            background: rgba(249, 115, 22, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .status-badge.critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .view-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 7px 16px;
+            border-radius: 20px;
+            color: #a78bfa;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .view-btn:hover {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .search-box input {
+                width: 130px;
+            }
+
+            td,
+            th {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">👨‍⚕️</div>
+                <div class="logo-text">
+                    <h1>Doctor Dashboard</h1>
+                    <p>Rehab.AR Patient Management</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="patient-btn" onclick="window.location.href='patient_dashboard.html'">
+                    <i class="fas fa-user"></i> Patient Dashboard
+                </button>
+                <button class="back-btn" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Strip -->
+        <div class="summary-strip">
+            <div class="summary-card">
+                <div class="s-icon purple">👥</div>
+                <div>
+                    <div class="s-val">5</div>
+                    <div class="s-label">Active Patients</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="s-icon green">✅</div>
+                <div>
+                    <div class="s-val">87%</div>
+                    <div class="s-label">Avg Accuracy</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="s-icon orange">⚠️</div>
+                <div>
+                    <div class="s-val">1</div>
+                    <div class="s-label">Need Attention</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="s-icon purple">💪</div>
+                <div>
+                    <div class="s-val">152</div>
+                    <div class="s-label">Total Reps Today</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Progress Tracker -->
+        <div class="patient-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-users"></i> Patient Progress Tracker
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search patients..." oninput="filterTable(this.value)">
+                </div>
+            </div>
+
+            <div class="patient-table">
+                <table id="patientTable">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Surgery Type</th>
+                            <th>Day</th>
+                            <th>Reps Today</th>
+                            <th>Accuracy</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="patient-avatar">P1</span>#001</td>
+                            <td>Knee Replacement</td>
+                            <td>14</td>
+                            <td>42</td>
+                            <td>
+                                <div class="acc-bar">
+                                    <div class="acc-track">
+                                        <div class="acc-fill good" style="width:87%"></div>
+                                    </div>
+                                    <span>87%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge on-track">On Track</span></td>
+                            <td><button class="view-btn" onclick="viewReport('001')">View Report</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="patient-avatar">P2</span>#002</td>
+                            <td>Shoulder Surgery</td>
+                            <td>7</td>
+                            <td>38</td>
+                            <td>
+                                <div class="acc-bar">
+                                    <div class="acc-track">
+                                        <div class="acc-fill good" style="width:92%"></div>
+                                    </div>
+                                    <span>92%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge excellent">Excellent</span></td>
+                            <td><button class="view-btn" onclick="viewReport('002')">View Report</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="patient-avatar">P3</span>#003</td>
+                            <td>Ankle Injury</td>
+                            <td>21</td>
+                            <td>25</td>
+                            <td>
+                                <div class="acc-bar">
+                                    <div class="acc-track">
+                                        <div class="acc-fill warn" style="width:78%"></div>
+                                    </div>
+                                    <span>78%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge attention">Needs Attention</span></td>
+                            <td><button class="view-btn" onclick="viewReport('003')">View Report</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="patient-avatar">P4</span>#004</td>
+                            <td>Knee Replacement</td>
+                            <td>3</td>
+                            <td>15</td>
+                            <td>
+                                <div class="acc-bar">
+                                    <div class="acc-track">
+                                        <div class="acc-fill good" style="width:95%"></div>
+                                    </div>
+                                    <span>95%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge on-track">On Track</span></td>
+                            <td><button class="view-btn" onclick="viewReport('004')">View Report</button></td>
+                        </tr>
+                        <tr>
+                            <td><span class="patient-avatar">P5</span>#005</td>
+                            <td>Hip Surgery</td>
+                            <td>10</td>
+                            <td>32</td>
+                            <td>
+                                <div class="acc-bar">
+                                    <div class="acc-track">
+                                        <div class="acc-fill good" style="width:84%"></div>
+                                    </div>
+                                    <span>84%</span>
+                                </div>
+                            </td>
+                            <td><span class="status-badge on-track">On Track</span></td>
+                            <td><button class="view-btn" onclick="viewReport('005')">View Report</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        function viewReport(id) {
+            window.location.href = `patient_report.html?id=${id}`;
+        }
+
+        function filterTable(query) {
+            const rows = document.querySelectorAll('#patientTable tbody tr');
+            rows.forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+
+</html>

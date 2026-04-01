@@ -1,0 +1,39 @@
+# Python virtual environment (DON'T UPLOAD!)
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Unity (DON'T UPLOAD large files!)
+Unity_Project/Library/
+Unity_Project/Temp/
+Unity_Project/obj/
+Unity_Project/Build/
+Unity_Project/Builds/
+Unity_Project/Logs/
+Unity_Project/UserSettings/
+RehabAR_Unity/Library/
+RehabAR_Unity/Temp/
+RehabAR_Unity/Build/
+*.csproj
+*.sln
+
+# Salesforce files (not needed)
+.sfdx/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Backup files
+*.mel

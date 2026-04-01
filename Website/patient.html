@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Rehab.AR | Patient Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #2d2b55 100%);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 50px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 22px;
+            border-radius: 50px;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Welcome banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 22px;
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .welcome-text h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .streak-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(251, 146, 60, 0.15);
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            border-radius: 50px;
+            padding: 12px 22px;
+        }
+
+        .streak-pill .fire {
+            font-size: 28px;
+            animation: flamePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flamePulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.15)
+            }
+        }
+
+        .streak-pill .streak-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fb923c;
+            line-height: 1;
+        }
+
+        .streak-pill .streak-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+
+        .stat-card.purple::before {
+            background: #8b5cf6;
+        }
+
+        .stat-card.gold::before {
+            background: #fbbf24;
+        }
+
+        .stat-card.orange::before {
+            background: #fb923c;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-emoji {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-value.gold-val {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-value.orange-val {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Two col layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 26px;
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(139, 92, 246, 0.25);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 22px;
+        }
+
+        .card-title i {
+            color: #8b5cf6;
+        }
+
+        /* Badges */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 14px;
+        }
+
+        .badge-item {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            transition: all 0.25s;
+            cursor: default;
+        }
+
+        .badge-item:hover {
+            background: rgba(139, 92, 246, 0.22);
+            border-color: rgba(139, 92, 246, 0.45);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .badge-emoji {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .badge-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        .badge-date {
+            font-size: 10px;
+            color: #475569;
+        }
+
+        /* Progress bars */
+        .prog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .prog-item {}
+
+        .prog-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .prog-day {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .prog-pct {
+            font-size: 12px;
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        .prog-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            position: relative;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Exercise distribution */
+        .dist-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dist-item {}
+
+        .dist-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .dist-name {
+            font-size: 13px;
+            color: #e2e8f0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dist-pct {
+            font-size: 13px;
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        .dist-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dist-dot.knee {
+            background: #6366f1;
+        }
+
+        .dist-dot.shoulder {
+            background: #8b5cf6;
+        }
+
+        .dist-dot.ankle {
+            background: #a78bfa;
+        }
+
+        .dist-track {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .dist-fill {
+            height: 100%;
+            border-radius: 6px;
+        }
+
+        .dist-fill.knee {
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+        }
+
+        .dist-fill.shoulder {
+            background: linear-gradient(90deg, #7c3aed, #8b5cf6);
+        }
+
+        .dist-fill.ankle {
+            background: linear-gradient(90deg, #9333ea, #a855f7);
+        }
+
+        /* Streak calendar */
+        .streak-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .day-label {
+            text-align: center;
+            font-size: 10px;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding-bottom: 4px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .day-cell:hover {
+            transform: scale(1.15);
+        }
+
+        .day-cell.done {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        .day-cell.miss {
+            background: rgba(255, 255, 255, 0.05);
+            color: #334155;
+        }
+
+        .day-cell.today {
+            background: rgba(251, 146, 60, 0.25);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+        }
+
+        /* CTA */
+        .cta-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .cta-btn {
+            flex: 1;
+            min-width: 160px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .cta-secondary {
+            background: rgba(255, 255, 255, 0.07);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">🧑‍🦽</div>
+                <div class="logo-text">
+                    <h1>My Dashboard</h1>
+                    <p>Rehab.AR · Recovery Journey</p>
+                </div>
+            </div>
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </button>
+        </div>
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h2>Keep Going, Champion! 💪</h2>
+                <p>You're on day 14 of recovery. Your consistency is paying off.</p>
+            </div>
+            <div class="streak-pill">
+                <span class="fire">🔥</span>
+                <div>
+                    <div class="streak-val">7</div>
+                    <div class="streak-label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <span class="stat-emoji">🎮</span>
+                <div class="stat-value">12,450</div>
+                <div class="stat-label">Total Points Earned</div>
+            </div>
+            <div class="stat-card gold">
+                <span class="stat-emoji">🏆</span>
+                <div class="stat-value gold-val">24</div>
+                <div class="stat-label">Badges Awarded</div>
+            </div>
+            <div class="stat-card orange">
+                <span class="stat-emoji">🔥</span>
+                <div class="stat-value orange-val">7.2</div>
+                <div class="stat-label">Avg Streak (days)</div>
+            </div>
+        </div>
+
+        <!-- Two col: Badges + Streak Calendar -->
+        <div class="two-col">
+
+            <!-- Recent Badges -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-medal"></i> Recent Badges Earned</div>
+                <div class="badges-grid">
+                    <div class="badge-item">
+                        <span class="badge-emoji">🏅</span>
+                        <div class="badge-name">10 Reps Club</div>
+                        <div class="badge-date">Yesterday</div>
+                    </div>
+                    <div class="badge-item">
+                        <span class="badge-emoji">🎯</span>
+                        <div class="badge-name">Perfect Form</div>
+                        <div class="badge-date">2 days ago</div>
+                    </div>
+                    <div class="badge-item">
+                        <span class="badge-emoji">🔥</span>
+                        <div class="badge-name">10 Rep Streak</div>
+                        <div class="badge-date">3 days ago</div>
+                    </div>
+                    <div class="badge-item">
+                        <span class="badge-emoji">⭐</span>
+                        <div class="badge-name">First Week</div>
+                        <div class="badge-date">7 days ago</div>
+                    </div>
+                    <div class="badge-item">
+                        <span class="badge-emoji">💎</span>
+                        <div class="badge-name">Accuracy Pro</div>
+                        <div class="badge-date">10 days ago</div>
+                    </div>
+                    <div class="badge-item">
+                        <span class="badge-emoji">🚀</span>
+                        <div class="badge-name">Fast Starter</div>
+                        <div class="badge-date">14 days ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streak Calendar -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-calendar-check"></i> Activity This Month</div>
+                <div class="streak-calendar" id="streakCal"></div>
+                <div style="display:flex;gap:16px;margin-top:18px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;">
+                        <div
+                            style="width:12px;height:12px;border-radius:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+                        </div> Completed
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;">
+                        <div
+                            style="width:12px;height:12px;border-radius:4px;background:rgba(251,146,60,0.25);border:1px solid rgba(251,146,60,0.4)">
+                        </div> Today
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b;">
+                        <div style="width:12px;height:12px;border-radius:4px;background:rgba(255,255,255,0.05)"></div>
+                        Missed
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Two col: Weekly Progress + Exercise Distribution -->
+        <div class="two-col">
+
+            <!-- Weekly Progress -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-line"></i> Weekly Progress</div>
+                <div class="prog-list">
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Monday</span><span class="prog-pct">85%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:85%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Tuesday</span><span class="prog-pct">72%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:72%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Wednesday</span><span class="prog-pct">88%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:88%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Thursday</span><span class="prog-pct">91%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:91%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Friday</span><span class="prog-pct">94%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:94%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Saturday</span><span class="prog-pct">89%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:89%"></div>
+                        </div>
+                    </div>
+                    <div class="prog-item">
+                        <div class="prog-meta"><span class="prog-day">Sunday</span><span class="prog-pct">92%</span>
+                        </div>
+                        <div class="prog-track">
+                            <div class="prog-fill" style="width:92%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise Distribution -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-pie"></i> Exercise Distribution</div>
+                <div class="dist-list">
+                    <div class="dist-item">
+                        <div class="dist-meta">
+                            <span class="dist-name"><span class="dist-dot knee"></span>Knee Exercises</span>
+                            <span class="dist-pct">45%</span>
+                        </div>
+                        <div class="dist-track">
+                            <div class="dist-fill knee" style="width:45%"></div>
+                        </div>
+                    </div>
+                    <div class="dist-item">
+                        <div class="dist-meta">
+                            <span class="dist-name"><span class="dist-dot shoulder"></span>Shoulder Exercises</span>
+                            <span class="dist-pct">30%</span>
+                        </div>
+                        <div class="dist-track">
+                            <div class="dist-fill shoulder" style="width:30%"></div>
+                        </div>
+                    </div>
+                    <div class="dist-item">
+                        <div class="dist-meta">
+                            <span class="dist-name"><span class="dist-dot ankle"></span>Ankle Exercises</span>
+                            <span class="dist-pct">25%</span>
+                        </div>
+                        <div class="dist-track">
+                            <div class="dist-fill ankle" style="width:25%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Donut visual (pure CSS) -->
+                <div style="display:flex;justify-content:center;margin-top:30px;">
+                    <div style="position:relative;width:130px;height:130px;">
+                        <svg viewBox="0 0 36 36" style="width:130px;height:130px;transform:rotate(-90deg)">
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="rgba(255,255,255,0.06)"
+                                stroke-width="3.5" />
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#6366f1" stroke-width="3.5"
+                                stroke-dasharray="45 55" stroke-dashoffset="0" />
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#8b5cf6" stroke-width="3.5"
+                                stroke-dasharray="30 70" stroke-dashoffset="-45" />
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#a855f7" stroke-width="3.5"
+                                stroke-dasharray="25 75" stroke-dashoffset="-75" />
+                        </svg>
+                        <div
+                            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                            <div style="font-size:18px;font-weight:800;color:white;">100%</div>
+                            <div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">
+                                Total</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CTA buttons -->
+        <div class="cta-row">
+            <button class="cta-btn cta-primary" onclick="window.location.href='ar.html'">
+                <i class="fas fa-video"></i> Start Today's Session
+            </button>
+            <button class="cta-btn cta-secondary" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+
+    </div>
+    <script>
+        // Build streak calendar
+        const cal = document.getElementById('streakCal');
+        const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        days.forEach(d => {
+            const el = document.createElement('div');
+            el.className = 'day-label';
+            el.textContent = d;
+            cal.appendChild(el);
+        });
+
+        // 28 days — simulate streak data
+        const today = 14; // day index (0-based) = today
+        const completedDays = [0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14];
+        for (let i = 0; i < 28; i++) {
+            const el = document.createElement('div');
+            const num = i + 1;
+            if (i === today) {
+                el.className = 'day-cell today';
+                el.textContent = num;
+            } else if (completedDays.includes(i)) {
+                el.className = 'day-cell done';
+                el.textContent = num;
+            } else {
+                el.className = 'day-cell miss';
+                el.textContent = num;
+            }
+            cal.appendChild(el);
+        }
+    </script>
+</body>
+
+</html>

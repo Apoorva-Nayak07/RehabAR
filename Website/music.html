@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RehabFlow — Physical Therapy Music</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ================================================================
+   DESIGN SYSTEM — Rehab.AR Style
+   Palette: Deep navy + electric violet + soft purple glow
+   Aesthetic: Futuristic clinical — dark, modern, high-contrast
+   ================================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy: #0d0f1a;
+            --navy-mid: #13162b;
+            --navy-light: #1a1f3a;
+            --navy-card: #161929;
+            --violet: #7c5cfc;
+            --violet-mid: #6b4ef0;
+            --violet-dark: #4a2fc0;
+            --violet-glow: rgba(124, 92, 252, 0.25);
+            --violet-pale: rgba(124, 92, 252, 0.12);
+            --purple-soft: #a78bfa;
+            --purple-muted: #c4b5fd;
+            --accent: #8b5cf6;
+            --coral: #f87171;
+            --teal: #34d399;
+            --white: #ffffff;
+            --text: rgba(255, 255, 255, 0.92);
+            --text2: rgba(255, 255, 255, 0.55);
+            --text3: rgba(255, 255, 255, 0.3);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-v: rgba(124, 92, 252, 0.3);
+            --surface: rgba(22, 25, 41, 0.9);
+            --surface2: rgba(28, 32, 52, 0.7);
+            --player-h: 90px;
+            --r: 16px;
+            --r-sm: 10px;
+            --r-pill: 50px;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-v: 0 8px 32px rgba(124, 92, 252, 0.3);
+            --shadow-dark: 0 4px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: calc(var(--player-h) + 32px);
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 92, 252, 0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 90% 80%, rgba(99, 71, 218, 0.08) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(124, 92, 252, 0.3);
+            border-radius: 2px;
+        }
+
+        /* ── Header ────────────────────────────────────────────────────── */
+        .app-header {
+            background: rgba(13, 15, 26, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--violet) 0%, var(--violet-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 14px rgba(124, 92, 252, 0.5);
+        }
+
+        .logo em {
+            font-style: normal;
+            color: var(--purple-soft);
+            font-weight: 400;
+            font-size: 0.9em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-link {
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 7px 16px;
+            border-radius: var(--r-pill);
+            border: none;
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--violet-pale);
+        }
+
+        .nav-link.active {
+            background: var(--violet);
+            color: white;
+            box-shadow: 0 0 18px rgba(124, 92, 252, 0.5);
+        }
+
+        .unlock-btn {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: var(--r-pill);
+            border: 1.5px solid var(--border-v);
+            background: var(--violet-pale);
+            color: var(--purple-soft);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unlock-btn:hover {
+            background: var(--violet);
+            color: white;
+            border-color: var(--violet);
+            box-shadow: var(--shadow-v);
+        }
+
+        .unlock-btn.active {
+            background: var(--violet);
+            border-color: var(--violet);
+            color: white;
+            box-shadow: var(--shadow-v);
+        }
+
+        /* ── Main layout ───────────────────────────────────────────────── */
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 36px 24px;
+            display: grid;
+            gap: 20px;
+        }
+
+        /* ── Cards ─────────────────────────────────────────────────────── */
+        .card {
+            background: rgba(19, 22, 43, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-dark);
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(124, 92, 252, 0.2);
+        }
+
+        .card-head {
+            padding: 24px 28px 0;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--white);
+            letter-spacing: -0.3px;
+        }
+
+        .card-sub {
+            font-size: 0.78rem;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+
+        .card-body {
+            padding: 18px 28px 28px;
+        }
+
+        /* ── Hero banner ─────────────────────────────────────────────── */
+        #unlock-banner {
+            background: linear-gradient(135deg, var(--navy-light) 0%, rgba(74, 47, 192, 0.4) 100%);
+            border-radius: var(--r);
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid var(--border-v);
+            box-shadow: 0 8px 40px rgba(124, 92, 252, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #unlock-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 92, 252, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        #unlock-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(124, 92, 252, 0.3);
+        }
+
+        #unlock-banner.gone {
+            display: none;
+        }
+
+        .ubanner-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            box-shadow: 0 6px 20px rgba(124, 92, 252, 0.5);
+        }
+
+        .ubanner-text h3 {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 5px;
+            color: var(--white);
+        }
+
+        .ubanner-text p {
+            font-size: 0.8rem;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        .ubanner-cta {
+            margin-left: auto;
+            padding: 12px 28px;
+            border-radius: var(--r-pill);
+            background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: transform 0.15s, box-shadow 0.2s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            box-shadow: 0 4px 18px rgba(124, 92, 252, 0.5);
+        }
+
+        .ubanner-cta:hover {
+            transform: scale(1.04);
+            box-shadow: 0 6px 28px rgba(124, 92, 252, 0.7);
+        }
+
+        /* ── Info bar ────────────────────────────────────────────────── */
+        .synth-bar {
+            background: var(--violet-pale);
+            border: 1px solid var(--border-v);
+            border-radius: var(--r);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
+
+        .synth-bar-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .synth-bar strong {
+            display: block;
+            font-size: 0.84rem;
+            margin-bottom: 2px;
+            color: var(--purple-soft);
+        }
+
+        .synth-bar span {
+            color: var(--text2);
+        }
+
+        /* ── Exercise grid ─────────────────────────────────────────────── */
+        .ex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .ex-card {
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.22s var(--ease);
+            background: var(--surface2);
+        }
+
+        .ex-card:hover {
+            border-color: var(--border-v);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(124, 92, 252, 0.2);
+        }
+
+        .ex-card.on {
+            border-color: var(--violet);
+            background: var(--violet-pale);
+            box-shadow: 0 0 0 1px var(--violet), 0 8px 24px rgba(124, 92, 252, 0.3);
+        }
+
+        .ex-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .ex-name {
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text);
+        }
+
+        .ex-type {
+            font-size: 0.66rem;
+            color: var(--text3);
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .mood-chip {
+            display: inline-block;
+            margin-top: 9px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .c-calm {
+            background: rgba(52, 211, 153, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .c-moderate {
+            background: rgba(124, 92, 252, 0.15);
+            color: var(--purple-soft);
+            border: 1px solid rgba(124, 92, 252, 0.25);
+        }
+
+        .c-energetic {
+            background: rgba(248, 113, 113, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+        }
+
+        /* Session bar */
+        .session-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            margin-top: 16px;
+            background: rgba(13, 15, 26, 0.5);
+            border-radius: var(--r-sm);
+            border: 1px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--text2);
+        }
+
+        .pulse {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--text3);
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+
+        .pulse.live {
+            background: var(--coral);
+            animation: hb 1.5s ease-in-out infinite;
+        }
+
+        @keyframes hb {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4)
+            }
+
+            35% {
+                transform: scale(1.18);
+                box-shadow: 0 0 0 7px rgba(248, 113, 113, 0)
+            }
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-cd {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--purple-soft);
+            margin-left: auto;
+        }
+
+        /* Waveform canvas */
+        #viz {
+            display: block;
+            width: 100%;
+            height: 50px;
+            border-radius: 8px;
+            margin-top: 14px;
+            background: rgba(124, 92, 252, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        /* ── Tabs ──────────────────────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 20px 24px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background: transparent;
+            color: var(--text3);
+            cursor: pointer;
+            transition: all 0.18s;
+            position: relative;
+            bottom: -1px;
+        }
+
+        .tab:hover {
+            color: var(--text);
+            background: var(--violet-pale);
+        }
+
+        .tab.on {
+            background: rgba(19, 22, 43, 1);
+            border-color: var(--border);
+            border-bottom-color: rgba(19, 22, 43, 1);
+            color: var(--purple-soft);
+        }
+
+        .panel {
+            padding: 18px 24px 24px;
+        }
+
+        /* Track list */
+        .track-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .trow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.18s;
+            border: 1px solid transparent;
+        }
+
+        .trow:hover {
+            background: var(--violet-pale);
+            border-color: var(--border-v);
+        }
+
+        .trow.on {
+            background: rgba(124, 92, 252, 0.15);
+            border-color: var(--border-v);
+        }
+
+        .eq {
+            display: none;
+            align-items: flex-end;
+            gap: 2px;
+            width: 20px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .eq span {
+            display: block;
+            width: 3px;
+            background: var(--violet);
+            border-radius: 2px;
+            animation: eqb 0.7s ease-in-out infinite;
+        }
+
+        .eq span:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .eq span:nth-child(3) {
+            animation-delay: 0.25s;
+        }
+
+        @keyframes eqb {
+
+            0%,
+            100% {
+                height: 3px
+            }
+
+            50% {
+                height: 14px
+            }
+        }
+
+        .trow.on .eq {
+            display: flex;
+        }
+
+        .trow.on .tidx {
+            display: none;
+        }
+
+        .tidx {
+            width: 20px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text3);
+            flex-shrink: 0;
+        }
+
+        .tthumb {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--violet-pale);
+            border: 1px solid var(--border-v);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tmeta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tname {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tartist {
+            font-size: 0.72rem;
+            color: var(--text3);
+            margin-top: 1px;
+        }
+
+        .tdur {
+            font-size: 0.68rem;
+            color: var(--text3);
+            flex-shrink: 0;
+        }
+
+        /* Upload zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--r-sm);
+            padding: 32px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface2);
+            position: relative;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.over {
+            border-color: var(--violet);
+            background: var(--violet-pale);
+        }
+
+        .drop-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .drop-icon {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .drop-label {
+            font-size: 0.875rem;
+            color: var(--text2);
+        }
+
+        .drop-label strong {
+            color: var(--purple-soft);
+        }
+
+        .drop-hint {
+            font-size: 0.7rem;
+            color: var(--text3);
+            margin-top: 6px;
+        }
+
+        .my-list {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .my-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--r-sm);
+            border: 1px solid var(--border);
+            background: var(--surface2);
+        }
+
+        .my-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .my-item-name {
+            font-weight: 600;
+            font-size: 0.83rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .my-item-sub {
+            font-size: 0.7rem;
+            color: var(--text3);
+            margin-top: 1px;
+        }
+
+        .my-play {
+            padding: 6px 14px;
+            border-radius: var(--r-pill);
+            border: 1px solid var(--border-v);
+            background: var(--violet-pale);
+            font-size: 0.74rem;
+            color: var(--purple-soft);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+        }
+
+        .my-play:hover {
+            background: var(--violet);
+            color: white;
+            border-color: var(--violet);
+        }
+
+        .my-del {
+            background: none;
+            border: none;
+            color: var(--text3);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .my-del:hover {
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--coral);
+        }
+
+        /* ================================================================
+   PLAYER BAR — Fixed bottom
+   ================================================================ */
+        #player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--player-h);
+            background: rgba(10, 12, 22, 0.97);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 24px;
+            z-index: 999;
+        }
+
+        .np {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1.2;
+            min-width: 0;
+        }
+
+        .np-art {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            background: var(--violet-pale);
+            border: 1px solid var(--border-v);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+
+        .np-art.vinyl {
+            animation: vinylspin 10s linear infinite;
+            animation-play-state: paused;
+            border-radius: 50% !important;
+        }
+
+        .np-art.vinyl.go {
+            animation-play-state: running;
+        }
+
+        @keyframes vinylspin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .np-text {
+            min-width: 0;
+        }
+
+        .np-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 175px;
+        }
+
+        .np-artist {
+            font-size: 0.7rem;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        .np-tag {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 0.56rem;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            background: var(--violet-pale);
+            color: var(--purple-soft);
+            border: 1px solid var(--border-v);
+        }
+
+        .ctrls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 2;
+            max-width: 500px;
+        }
+
+        .ctrl-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cbtn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px;
+            transition: all 0.17s;
+        }
+
+        .cbtn:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .cbtn.play {
+            width: 46px;
+            height: 46px;
+            padding: 0;
+            background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(124, 92, 252, 0.55);
+        }
+
+        .cbtn.play:hover {
+            box-shadow: 0 6px 28px rgba(124, 92, 252, 0.75);
+            transform: scale(1.06);
+        }
+
+        .auto-pill {
+            font-size: 0.58rem;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text3);
+            transition: all 0.3s;
+        }
+
+        .auto-pill.on {
+            background: var(--violet-pale);
+            border-color: var(--border-v);
+            color: var(--purple-soft);
+        }
+
+        .prog-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .prog-time {
+            font-size: 0.66rem;
+            color: var(--text3);
+            min-width: 32px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .prog-track {
+            flex: 1;
+            height: 3px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.07);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--violet), var(--purple-soft));
+            width: 0%;
+            transition: width 0.12s linear;
+            pointer-events: none;
+        }
+
+        .vol {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 140px;
+            justify-content: flex-end;
+        }
+
+        .vol-ico {
+            color: var(--text3);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .vol-ico:hover {
+            color: var(--text);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 3px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--violet);
+            cursor: pointer;
+            border: 2px solid rgba(10, 12, 22, 0.9);
+            transition: transform 0.15s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--violet);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ── Toast ─────────────────────────────────────────────────────── */
+        #toast {
+            position: fixed;
+            bottom: calc(var(--player-h) + 14px);
+            left: 50%;
+            transform: translateX(-50%) translateY(14px);
+            background: rgba(10, 12, 22, 0.97);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 10px 22px;
+            border-radius: var(--r-pill);
+            font-size: 0.78rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-v);
+            opacity: 0;
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            z-index: 9999;
+            white-space: nowrap;
+            border: 1px solid var(--border-v);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── Responsive ────────────────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .app-header {
+                padding: 0 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .main {
+                padding: 20px 14px;
+            }
+
+            .card-head,
+            .card-body,
+            .panel {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .tabs {
+                padding-left: 16px;
+            }
+
+            .ex-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            #player {
+                padding: 0 14px;
+                gap: 12px;
+            }
+
+            .np {
+                flex: 0 0 auto;
+            }
+
+            .np-name {
+                max-width: 110px;
+                font-size: 0.8rem;
+            }
+
+            .np-artist,
+            .np-tag,
+            .vol {
+                display: none;
+            }
+
+            .ctrls {
+                flex: 1;
+            }
+
+            .np-art {
+                width: 42px;
+                height: 42px;
+                font-size: 1.2rem;
+            }
+
+            .cbtn.play {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast"></div>
+
+    <!-- ================================================================ HEADER -->
+    <header class="app-header">
+        <div class="logo">
+            <div class="logo-icon">🎵</div>
+            Rehab<em>.Flow</em>
+        </div>
+        <nav class="nav-links">
+            <button class="nav-link active">Home</button>
+            <button class="nav-link">Exercises</button>
+            <button class="nav-link">Playlist</button>
+            <button class="nav-link">My Music</button>
+        </nav>
+        <button class="unlock-btn" id="hdr-btn" onclick="unlockAudio()">▶ Activate Audio</button>
+    </header>
+
+    <!-- ================================================================ MAIN -->
+    <main class="main">
+
+        <!-- Hero / unlock banner -->
+        <div id="unlock-banner" onclick="unlockAudio()">
+            <div class="ubanner-icon">🎵</div>
+            <div class="ubanner-text">
+                <h3>Activate Your Music System</h3>
+                <p>Browsers require one tap before audio can play. Click here to unlock the full synthesized music
+                    system.</p>
+            </div>
+            <button class="ubanner-cta">▶ Activate Now</button>
+        </div>
+
+        <!-- Info bar -->
+        <div class="synth-bar">
+            <span class="synth-bar-icon">🎹</span>
+            <div>
+                <strong>100% Synthesized — Works offline, no downloads</strong>
+                <span>All 8 tracks are composed live using the Web Audio API: binaural tones, chord pads, arpeggios,
+                    rhythmic patterns. Upload your own MP3s in "My Music".</span>
+            </div>
+        </div>
+
+        <!-- Exercise section -->
+        <div class="card">
+            <div class="card-head">
+                <div class="card-title">Today's Session</div>
+                <div class="card-sub">Tap an exercise — music auto-matches the mood &amp; begins playing</div>
+            </div>
+            <div class="card-body">
+                <div class="ex-grid" id="ex-grid"></div>
+                <canvas id="viz"></canvas>
+                <div class="session-bar">
+                    <span class="pulse" id="pulse"></span>
+                    <div class="session-info" id="s-label">No exercise active — select one above</div>
+                    <span class="session-cd" id="s-timer"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlist section -->
+        <div class="card">
+            <div class="tabs">
+                <button class="tab on" id="tab-def" onclick="switchTab('default')">Default Playlist</button>
+                <button class="tab" id="tab-my" onclick="switchTab('mymusic')">My Music</button>
+            </div>
+            <div class="panel" id="panel-def">
+                <ul class="track-list" id="def-list"></ul>
+            </div>
+            <div class="panel" id="panel-my" style="display:none;">
+                <div class="drop-zone" id="drop-zone">
+                    <input type="file" id="file-input" accept="audio/*" multiple>
+                    <span class="drop-icon">🎵</span>
+                    <p class="drop-label"><strong>Click or drag</strong> MP3 / audio files here</p>
+                    <p class="drop-hint">MP3, AAC, OGG, WAV supported · Stored locally in your browser</p>
+                </div>
+                <div class="my-list" id="my-list"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ================================================================ PLAYER BAR -->
+    <div id="player">
+        <div class="np">
+            <div class="np-art vinyl" id="np-art">🎵</div>
+            <div class="np-text">
+                <div class="np-name" id="np-name">Not playing</div>
+                <div class="np-artist" id="np-artist">Select a track or start an exercise</div>
+                <span class="np-tag" id="np-tag" style="display:none;">SYNTH</span>
+            </div>
+        </div>
+        <div class="ctrls">
+            <div class="ctrl-row">
+                <button class="cbtn" onclick="prevTrack()" title="Previous (←)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+                    </svg>
+                </button>
+                <button class="cbtn play" id="btn-play" onclick="togglePlay()" title="Play/Pause (Space)">
+                    <svg id="ico-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <svg id="ico-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"
+                        style="display:none">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    </svg>
+                </button>
+                <button class="cbtn" onclick="nextTrack()" title="Next (→)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zm8.5-6v6h2V6h-2v6z" />
+                    </svg>
+                </button>
+                <span class="auto-pill" id="auto-pill">AUTO</span>
+            </div>
+            <div class="prog-row">
+                <span class="prog-time" id="t-cur">0:00</span>
+                <div class="prog-track" id="prog-track" onclick="seekTo(event)">
+                    <div class="prog-fill" id="prog-fill"></div>
+                </div>
+                <span class="prog-time" id="t-tot">0:00</span>
+            </div>
+        </div>
+        <div class="vol">
+            <svg class="vol-ico" id="vol-ico" onclick="toggleMute()" width="18" height="18" viewBox="0 0 24 24"
+                fill="currentColor" title="Mute (M)">
+                <path
+                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+            </svg>
+            <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.75" oninput="setVolume(this.value)"
+                aria-label="Volume">
+        </div>
+    </div>
+
+    <audio id="html-audio" preload="none"></audio>
+
+    <script>
+        /* All JS is identical to the original — only the UI has been restyled */
+
+        let AC = null, masterGain = null, analyser = null;
+        let unlocked = false;
+        let synthNodes = [];
+        let synthTimer = null;
+        let synthTimer2 = null;
+        let synthGain = null;
+        let progInterval = null, progSec = 0;
+        const CYCLE = 300;
+        const htmlAudio = document.getElementById('html-audio');
+        let htmlSrcNode = null;
+
+        const S = {
+            playlist: [], myTracks: [],
+            idx: 0, playing: false,
+            muted: false, volume: 0.75,
+            tab: 'default',
+            activeEx: null, exTimer: null, exSec: 0,
+            mode: 'synth',
+        };
+
+        const TRACKS = [
+            {
+                id: 1, title: "Ocean Breath", artist: "Binaural Lab", emoji: "🌊", mood: "calm",
+                synth: binaural([{ f: 174, b: 0.5, v: 0.22 }, { f: 285, b: 0.7, v: 0.14 }, { f: 396, b: 0.9, v: 0.09 }])
+            },
+            {
+                id: 2, title: "Morning Stretch", artist: "Ambient Wellness", emoji: "☀️", mood: "calm",
+                synth: chordPad({ chords: [[261, 329, 392], [246, 311, 370], [220, 277, 349], [233, 293, 349]], rate: 6, wave: 'sine', flt: 900, v: 0.18 })
+            },
+            {
+                id: 3, title: "Steady Pulse", artist: "Motion Studio", emoji: "💚", mood: "moderate",
+                synth: rhythmic({ bpm: 72, chords: [[261, 329], [246, 311]], v: 0.19 })
+            },
+            {
+                id: 4, title: "Healing Tide", artist: "Restoration Lab", emoji: "🫧", mood: "calm",
+                synth: noiseDrone({ dFreq: 110, nv: 0.04, dv: 0.18 })
+            },
+            {
+                id: 5, title: "Moving Forward", artist: "Rehab Beats", emoji: "🌿", mood: "moderate",
+                synth: arpeggio({ notes: [261, 294, 329, 349, 392, 440, 494, 523], step: 0.25, wave: 'triangle', flt: 1200, v: 0.15 })
+            },
+            {
+                id: 6, title: "Deep Restoration", artist: "Serenity Systems", emoji: "🕊️", mood: "calm",
+                synth: binaural([{ f: 136.1, b: 0.3, v: 0.28 }, { f: 174, b: 0.5, v: 0.16 }])
+            },
+            {
+                id: 7, title: "Power & Grace", artist: "Strength Studio", emoji: "⚡", mood: "energetic",
+                synth: rhythmic({ bpm: 96, chords: [[349, 440], [329, 415], [311, 392]], v: 0.22 })
+            },
+            {
+                id: 8, title: "Mindful Steps", artist: "Wellness Wave", emoji: "🧘", mood: "moderate",
+                synth: arpeggio({ notes: [220, 261, 294, 329, 349, 329, 294, 261], step: 0.35, wave: 'sine', flt: 800, v: 0.16 })
+            },
+        ];
+
+        function binaural(layers) {
+            return (ac, out) => {
+                const nodes = [];
+                layers.forEach(({ f, b, v }) => {
+                    ['L', 'R'].forEach((side, si) => {
+                        const osc = ac.createOscillator();
+                        const gain = ac.createGain();
+                        const pan = ac.createStereoPanner();
+                        osc.type = 'sine';
+                        osc.frequency.value = si === 0 ? f : f + b;
+                        gain.gain.value = v;
+                        pan.pan.value = si === 0 ? -0.6 : 0.6;
+                        const lfo = ac.createOscillator(), lfoG = ac.createGain();
+                        lfo.frequency.value = 0.07 + Math.random() * 0.05;
+                        lfoG.gain.value = v * 0.18;
+                        lfo.connect(lfoG); lfoG.connect(gain.gain); lfo.start();
+                        osc.connect(gain); gain.connect(pan); pan.connect(out); osc.start();
+                        nodes.push(osc, gain, pan, lfo, lfoG);
+                    });
+                });
+                return nodes;
+            };
+        }
+
+        function chordPad({ chords, rate, wave, flt, v }) {
+            return (ac, out) => {
+                const nodes = [];
+                let ci = 0;
+                function play() {
+                    const chord = chords[ci++ % chords.length];
+                    chord.forEach((freq, i) => {
+                        const osc = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+                        f.type = 'lowpass'; f.frequency.value = flt; f.Q.value = 0.8;
+                        osc.type = wave; osc.frequency.value = freq;
+                        osc.detune.value = (i - 1) * 5;
+                        const now = ac.currentTime;
+                        g.gain.setValueAtTime(0, now);
+                        g.gain.linearRampToValueAtTime(v / chord.length, now + 0.9);
+                        g.gain.setValueAtTime(v / chord.length, now + rate - 1.4);
+                        g.gain.linearRampToValueAtTime(0, now + rate);
+                        osc.connect(f); f.connect(g); g.connect(out);
+                        osc.start(now); osc.stop(now + rate + 0.15);
+                        nodes.push(osc, f, g);
+                    });
+                }
+                play();
+                const t = setInterval(play, rate * 1000);
+                nodes._t = t;
+                return nodes;
+            };
+        }
+
+        function rhythmic({ bpm, chords, v }) {
+            return (ac, out) => {
+                const nodes = [], beat = 60 / bpm;
+                function kick(t) {
+                    const o = ac.createOscillator(), g = ac.createGain();
+                    o.frequency.setValueAtTime(180, t);
+                    o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+                    g.gain.setValueAtTime(0.38, t);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+                    o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.32);
+                }
+                function sched(from, dur) { let t = from; while (t < from + dur + 2) { kick(t); t += beat * 2; } }
+                sched(ac.currentTime, 30);
+                const t1 = setInterval(() => sched(ac.currentTime, 30), 28000);
+                let ci = 0;
+                function pad() {
+                    const chord = chords[ci++ % chords.length];
+                    chord.forEach(freq => {
+                        const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+                        f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 1.2;
+                        o.type = 'sawtooth'; o.frequency.value = freq / 2;
+                        const now = ac.currentTime;
+                        g.gain.setValueAtTime(0, now);
+                        g.gain.linearRampToValueAtTime(v / chord.length, now + 0.5);
+                        g.gain.linearRampToValueAtTime(0, now + beat * 4);
+                        o.connect(f); f.connect(g); g.connect(out);
+                        o.start(now); o.stop(now + beat * 4 + 0.2);
+                        nodes.push(o, f, g);
+                    });
+                }
+                pad();
+                const t2 = setInterval(pad, beat * 4 * 1000);
+                nodes._t = t1; nodes._t2 = t2;
+                return nodes;
+            };
+        }
+
+        function noiseDrone({ dFreq, nv, dv }) {
+            return (ac, out) => {
+                const nodes = [];
+                const len = ac.sampleRate * 3, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+                let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                for (let i = 0; i < len; i++) {
+                    const w = Math.random() * 2 - 1;
+                    b0 = .99886 * b0 + w * .0555179; b1 = .99332 * b1 + w * .0750759; b2 = .96900 * b2 + w * .153852;
+                    b3 = .86650 * b3 + w * .310486; b4 = .55000 * b4 + w * .532952; b5 = -.7616 * b5 - w * .016898;
+                    d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * .536201) / 7; b6 = w * .115926;
+                }
+                const src = ac.createBufferSource(), ng = ac.createGain(), nf = ac.createBiquadFilter();
+                src.buffer = buf; src.loop = true;
+                nf.type = 'lowpass'; nf.frequency.value = 450; ng.gain.value = nv;
+                src.connect(nf); nf.connect(ng); ng.connect(out); src.start();
+                nodes.push(src, ng, nf);
+                [dFreq, dFreq * 1.5, dFreq * 2].forEach((f, i) => {
+                    const o = ac.createOscillator(), g = ac.createGain();
+                    o.type = 'sine'; o.frequency.value = f; g.gain.value = dv / (i + 1);
+                    o.connect(g); g.connect(out); o.start(); nodes.push(o, g);
+                });
+                return nodes;
+            };
+        }
+
+        function arpeggio({ notes, step, wave, flt, v }) {
+            return (ac, out) => {
+                const nodes = []; let ni = 0;
+                function note() {
+                    const freq = notes[ni++ % notes.length];
+                    const o = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter();
+                    f.type = 'lowpass'; f.frequency.value = flt; f.Q.value = 2;
+                    o.type = wave; o.frequency.value = freq;
+                    const now = ac.currentTime;
+                    g.gain.setValueAtTime(0, now);
+                    g.gain.linearRampToValueAtTime(v, now + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + step * 0.82);
+                    o.connect(f); f.connect(g); g.connect(out);
+                    o.start(now); o.stop(now + step);
+                    nodes.push(o, f, g);
+                }
+                note();
+                const t = setInterval(note, step * 1000);
+                nodes._t = t;
+                return nodes;
+            };
+        }
+
+        function ensureAC() {
+            if (AC) return;
+            AC = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = AC.createGain();
+            masterGain.gain.value = S.muted ? 0 : S.volume;
+            analyser = AC.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.82;
+            masterGain.connect(analyser);
+            analyser.connect(AC.destination);
+            startViz();
+        }
+
+        function unlockAudio() {
+            ensureAC();
+            if (AC.state === 'suspended') AC.resume();
+            unlocked = true;
+            document.getElementById('unlock-banner').classList.add('gone');
+            const btn = document.getElementById('hdr-btn');
+            btn.textContent = '▶ Audio Active';
+            btn.classList.add('active');
+            showToast('Audio unlocked — ready to play!');
+        }
+
+        function playSynth(track) {
+            stopSynth(0.05);
+            ensureAC();
+            if (AC.state === 'suspended') AC.resume();
+            synthGain = AC.createGain();
+            synthGain.gain.setValueAtTime(0, AC.currentTime);
+            synthGain.gain.linearRampToValueAtTime(1, AC.currentTime + 1.4);
+            synthGain.connect(masterGain);
+            synthNodes = track.synth(AC, synthGain);
+            S.mode = 'synth'; S.playing = true;
+            document.getElementById('np-tag').style.display = '';
+            document.getElementById('np-tag').textContent = 'SYNTH';
+            updatePlayUI();
+            startProg();
+        }
+
+        function stopSynth(fade = 0.08) {
+            if (synthNodes._t) clearInterval(synthNodes._t);
+            if (synthNodes._t2) clearInterval(synthNodes._t2);
+            const g = synthGain;
+            if (g && AC) {
+                const now = AC.currentTime;
+                g.gain.setValueAtTime(g.gain.value || 0, now);
+                g.gain.linearRampToValueAtTime(0, now + fade);
+                setTimeout(() => {
+                    synthNodes.forEach(n => { if (n && typeof n.stop === 'function') { try { n.stop(); n.disconnect(); } catch (e) { } } });
+                    try { g.disconnect(); } catch (e) { }
+                    synthNodes = [];
+                }, fade * 1000 + 60);
+            } else {
+                synthNodes.forEach(n => { if (n && typeof n.stop === 'function') { try { n.stop(); } catch (e) { } } });
+                synthNodes = [];
+            }
+            stopProg();
+        }
+
+        function fadeSynth(sec = 2) {
+            if (!S.playing) return;
+            if (synthGain && AC) {
+                const now = AC.currentTime;
+                synthGain.gain.setValueAtTime(synthGain.gain.value || 1, now);
+                synthGain.gain.linearRampToValueAtTime(0, now + sec);
+            }
+            if (S.mode === 'upload') fadeHtml(0, sec);
+            setTimeout(() => {
+                stopSynth(0.05);
+                htmlAudio.pause();
+                S.playing = false; updatePlayUI();
+            }, sec * 1000 + 80);
+        }
+
+        function startProg() {
+            stopProg(); progSec = 0;
+            document.getElementById('t-tot').textContent = fmt(CYCLE);
+            progInterval = setInterval(() => {
+                progSec++;
+                document.getElementById('prog-fill').style.width = ((progSec / CYCLE) * 100) + '%';
+                document.getElementById('t-cur').textContent = fmt(progSec);
+                if (progSec >= CYCLE) nextTrack();
+            }, 1000);
+        }
+        function stopProg() {
+            if (progInterval) { clearInterval(progInterval); progInterval = null; }
+            document.getElementById('prog-fill').style.width = '0%';
+            document.getElementById('t-cur').textContent = '0:00';
+            document.getElementById('t-tot').textContent = '0:00';
+        }
+
+        function playUpload(track) {
+            stopSynth(0.3);
+            ensureAC();
+            htmlAudio.src = track.url;
+            htmlAudio.volume = S.muted ? 0 : S.volume;
+            if (!htmlSrcNode) {
+                htmlSrcNode = AC.createMediaElementSource(htmlAudio);
+                htmlSrcNode.connect(masterGain);
+            }
+            htmlAudio.play().then(() => {
+                S.mode = 'upload'; S.playing = true;
+                document.getElementById('np-tag').style.display = '';
+                document.getElementById('np-tag').textContent = 'MP3';
+                updatePlayUI();
+            }).catch(() => showToast('Could not play file — try another format'));
+        }
+
+        function fadeHtml(target, sec = 2) {
+            const steps = 40, d = (target - htmlAudio.volume) / steps;
+            let i = 0;
+            const t = setInterval(() => {
+                i++; htmlAudio.volume = Math.max(0, Math.min(1, htmlAudio.volume + d));
+                if (i >= steps) { clearInterval(t); if (target === 0) htmlAudio.pause(); }
+            }, (sec * 1000) / steps);
+        }
+
+        htmlAudio.addEventListener('timeupdate', () => {
+            if (!htmlAudio.duration) return;
+            document.getElementById('prog-fill').style.width = ((htmlAudio.currentTime / htmlAudio.duration) * 100) + '%';
+            document.getElementById('t-cur').textContent = fmt(htmlAudio.currentTime);
+        });
+        htmlAudio.addEventListener('loadedmetadata', () => {
+            document.getElementById('t-tot').textContent = fmt(htmlAudio.duration);
+        });
+        htmlAudio.addEventListener('ended', nextTrack);
+
+        function startViz() {
+            const canvas = document.getElementById('viz');
+            const ctx = canvas.getContext('2d');
+            (function draw() {
+                requestAnimationFrame(draw);
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                const W = canvas.width, H = canvas.height;
+                ctx.clearRect(0, 0, W, H);
+                if (!analyser || !S.playing) {
+                    ctx.strokeStyle = 'rgba(124,92,252,0.15)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+                    return;
+                }
+                const data = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteTimeDomainData(data);
+                ctx.strokeStyle = 'rgba(167,139,250,0.8)';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(124,92,252,0.4)'; ctx.shadowBlur = 10;
+                ctx.beginPath();
+                data.forEach((d, i) => {
+                    const x = (i / data.length) * W;
+                    const y = (d / 128) * H / 2;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.lineTo(W, H / 2); ctx.stroke(); ctx.shadowBlur = 0;
+            })();
+        }
+
+        function loadTrack(idx, play = false) {
+            S.idx = ((idx % S.playlist.length) + S.playlist.length) % S.playlist.length;
+            const t = S.playlist[S.idx];
+            document.getElementById('np-name').textContent = t.title;
+            document.getElementById('np-artist').textContent = t.artist || 'Unknown';
+            document.getElementById('np-art').textContent = t.emoji || '🎵';
+            renderDefList(); renderMyList();
+            if (play) {
+                t._isUpload ? playUpload(t) : playSynth(t);
+            } else {
+                S.playing = false; updatePlayUI();
+            }
+        }
+
+        function togglePlay() {
+            if (!unlocked) { unlockAudio(); return; }
+            if (S.playing) {
+                if (S.mode === 'synth') { stopSynth(0.4); stopProg(); }
+                else { htmlAudio.pause(); }
+                S.playing = false; showToast('Paused');
+            } else {
+                const t = S.playlist[S.idx]; if (!t) return;
+                t._isUpload ? playUpload(t) : playSynth(t);
+                showToast('Playing: ' + t.title);
+            }
+            updatePlayUI();
+        }
+
+        function nextTrack() { stopSynth(0.25); htmlAudio.pause(); htmlAudio.src = ''; loadTrack(S.idx + 1, S.playing); }
+        function prevTrack() {
+            const isUp = S.playlist[S.idx]?._isUpload;
+            if (!isUp && progSec > 5) { progSec = 0; return; }
+            if (isUp && htmlAudio.currentTime > 4) { htmlAudio.currentTime = 0; return; }
+            stopSynth(0.25); htmlAudio.pause(); htmlAudio.src = '';
+            loadTrack(S.idx - 1, S.playing);
+        }
+
+        function playFromList(idx, tab) {
+            if (S.tab !== tab) switchTab(tab, true);
+            stopSynth(0.25); htmlAudio.pause(); htmlAudio.src = '';
+            loadTrack(idx, true);
+        }
+
+        function setVolume(v) {
+            S.volume = parseFloat(v);
+            if (masterGain) masterGain.gain.value = S.muted ? 0 : S.volume;
+            htmlAudio.volume = S.muted ? 0 : S.volume;
+            localStorage.setItem('rfVol', v);
+            updateVolIco();
+        }
+        function toggleMute() {
+            S.muted = !S.muted;
+            if (masterGain) masterGain.gain.value = S.muted ? 0 : S.volume;
+            htmlAudio.volume = S.muted ? 0 : S.volume;
+            updateVolIco();
+        }
+        function updateVolIco() {
+            const el = document.getElementById('vol-ico');
+            if (S.muted || S.volume < 0.01) {
+                el.innerHTML = `<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-3-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18l2 2L21 18.73 4.27 3zM12 4 9.91 6.09 12 8.18V4z"/>`;
+            } else if (S.volume < 0.5) {
+                el.innerHTML = `<path d="M18.5 12A4.5 4.5 0 0 0 16 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>`;
+            } else {
+                el.innerHTML = `<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
+            }
+        }
+
+        function seekTo(e) {
+            if (S.mode !== 'upload' || !htmlAudio.duration) return;
+            const r = document.getElementById('prog-track').getBoundingClientRect();
+            htmlAudio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * htmlAudio.duration;
+        }
+
+        const EXERCISES = [
+            { name: "Deep Breathing", type: "Breathing", emoji: "🫁", mood: "calm", dur: 120 },
+            { name: "Neck Stretch", type: "Stretching", emoji: "🙆", mood: "calm", dur: 90 },
+            { name: "Shoulder Rolls", type: "Mobility", emoji: "🤸", mood: "moderate", dur: 60 },
+            { name: "Leg Press", type: "Strength", emoji: "🦵", mood: "moderate", dur: 90 },
+            { name: "Knee Flexion", type: "Rehab", emoji: "🦿", mood: "moderate", dur: 120 },
+            { name: "Calf Raises", type: "Strength", emoji: "🏋️", mood: "energetic", dur: 75 },
+        ];
+
+        function startExercise(i) {
+            if (S.activeEx === i) {
+                S.activeEx = null;
+                clearInterval(S.exTimer); S.exTimer = null;
+                renderExGrid();
+                document.getElementById('pulse').classList.remove('live');
+                document.getElementById('s-label').textContent = 'No exercise active — select one above';
+                document.getElementById('s-timer').textContent = '';
+                document.getElementById('auto-pill').classList.remove('on');
+                fadeSynth(2);
+                return;
+            }
+            clearInterval(S.exTimer);
+            S.activeEx = i;
+            const ex = EXERCISES[i];
+            S.exSec = ex.dur;
+            renderExGrid();
+            document.getElementById('pulse').classList.add('live');
+            document.getElementById('s-label').innerHTML = `<strong>${ex.emoji} ${ex.name}</strong> &nbsp;·&nbsp; ${ex.type}`;
+            document.getElementById('auto-pill').classList.add('on');
+            updateTimer();
+            S.exTimer = setInterval(() => {
+                S.exSec--;
+                updateTimer();
+                if (S.exSec <= 0) {
+                    clearInterval(S.exTimer); S.exTimer = null; S.activeEx = null;
+                    renderExGrid();
+                    document.getElementById('pulse').classList.remove('live');
+                    document.getElementById('s-label').textContent = '✅ Exercise complete! Great work.';
+                    document.getElementById('s-timer').textContent = '';
+                    document.getElementById('auto-pill').classList.remove('on');
+                    showToast('Exercise complete! 💪');
+                    fadeSynth(2.5);
+                }
+            }, 1000);
+            autoMood(ex.mood);
+            showToast(`${ex.name} started — ${ex.mood} music playing`);
+        }
+
+        function updateTimer() {
+            const m = Math.floor(S.exSec / 60), s = S.exSec % 60;
+            document.getElementById('s-timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function autoMood(mood) {
+            const cur = S.playlist[S.idx];
+            if (S.playing && cur?.mood === mood && !cur?._isUpload) return;
+            const pool = TRACKS.map((t, i) => ({ t, i })).filter(({ t }) => t.mood === mood);
+            if (!pool.length) return;
+            const notCur = pool.filter(({ i }) => i !== S.idx);
+            const pick = (notCur.length ? notCur : pool)[Math.floor(Math.random() * (notCur.length || pool.length))];
+            if (S.tab !== 'default') switchTab('default', true);
+            loadTrack(pick.i, true);
+        }
+
+        function handleFiles(files) {
+            const audio = Array.from(files).filter(f => f.type.startsWith('audio/'));
+            if (!audio.length) { showToast('No audio files found'); return; }
+            audio.forEach(f => {
+                S.myTracks.push({ id: Date.now() + Math.random(), title: f.name.replace(/\.[^.]+$/, ''), artist: 'My Upload', emoji: '🎵', mood: 'moderate', url: URL.createObjectURL(f), dur: '—', _isUpload: true });
+            });
+            if (S.tab === 'mymusic') S.playlist = [...S.myTracks];
+            renderMyList();
+            showToast(`Added ${audio.length} track${audio.length > 1 ? 's' : ''}`);
+        }
+        function delMyTrack(i) {
+            const t = S.myTracks.splice(i, 1)[0];
+            if (t?.url?.startsWith('blob:')) URL.revokeObjectURL(t.url);
+            if (S.tab === 'mymusic') { S.playlist = [...S.myTracks]; if (S.idx >= S.myTracks.length) S.idx = 0; }
+            renderMyList(); showToast('Track removed');
+        }
+
+        function switchTab(tab, silent = false) {
+            S.tab = tab;
+            document.getElementById('tab-def').classList.toggle('on', tab === 'default');
+            document.getElementById('tab-my').classList.toggle('on', tab === 'mymusic');
+            document.getElementById('panel-def').style.display = tab === 'default' ? '' : 'none';
+            document.getElementById('panel-my').style.display = tab === 'mymusic' ? '' : 'none';
+            S.playlist = tab === 'default' ? [...TRACKS] : [...S.myTracks];
+            S.idx = 0;
+            localStorage.setItem('rfTab', tab);
+            if (!silent) {
+                if (S.playlist.length) loadTrack(0, false);
+                showToast(tab === 'default' ? 'Default Playlist' : 'My Music');
+            }
+        }
+
+        function renderExGrid() {
+            document.getElementById('ex-grid').innerHTML = EXERCISES.map((ex, i) => `
+    <div class="ex-card ${S.activeEx === i ? 'on' : ''}" onclick="startExercise(${i})" tabindex="0" role="button"
+         onkeydown="if(event.key==='Enter')startExercise(${i})">
+      <span class="ex-emoji">${ex.emoji}</span>
+      <div class="ex-name">${ex.name}</div>
+      <div class="ex-type">${ex.type}</div>
+      <span class="mood-chip c-${ex.mood}">${ex.mood}</span>
+    </div>`).join('');
+        }
+
+        function renderDefList() {
+            document.getElementById('def-list').innerHTML = TRACKS.map((t, i) => `
+    <li class="trow ${S.tab === 'default' && S.idx === i && S.playing ? 'on' : ''}"
+        onclick="playFromList(${i},'default')" tabindex="0" role="button"
+        onkeydown="if(event.key==='Enter')playFromList(${i},'default')">
+      <span class="eq"><span></span><span></span><span></span></span>
+      <span class="tidx">${i + 1}</span>
+      <span class="tthumb">${t.emoji}</span>
+      <div class="tmeta">
+        <div class="tname">${t.title}</div>
+        <div class="tartist">${t.artist}</div>
+      </div>
+      <span class="mood-chip c-${t.mood}">${t.mood}</span>
+      <span class="tdur">SYNTH</span>
+    </li>`).join('');
+        }
+
+        function renderMyList() {
+            const el = document.getElementById('my-list');
+            if (!S.myTracks.length) { el.innerHTML = '<p style="text-align:center;color:var(--text3);font-size:0.8rem;padding:20px 0">No uploaded tracks yet.</p>'; return; }
+            el.innerHTML = S.myTracks.map((t, i) => `
+    <div class="my-item">
+      <span style="font-size:1.2rem">🎵</span>
+      <div class="my-item-info">
+        <div class="my-item-name">${t.title}</div>
+        <div class="my-item-sub">Uploaded</div>
+      </div>
+      <button class="my-play" onclick="playFromList(${i},'mymusic')">▶ Play</button>
+      <button class="my-del"  onclick="delMyTrack(${i})" aria-label="Remove">✕</button>
+    </div>`).join('');
+        }
+
+        function updatePlayUI() {
+            const p = S.playing;
+            document.getElementById('ico-play').style.display = p ? 'none' : '';
+            document.getElementById('ico-pause').style.display = p ? '' : 'none';
+            const art = document.getElementById('np-art');
+            art.classList.toggle('go', p);
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+            if (e.code === 'ArrowRight') nextTrack();
+            if (e.code === 'ArrowLeft') prevTrack();
+            if (e.code === 'ArrowUp') { e.preventDefault(); const v = Math.min(1, S.volume + 0.1); document.getElementById('vol-slider').value = v; setVolume(v); }
+            if (e.code === 'ArrowDown') { e.preventDefault(); const v = Math.max(0, S.volume - 0.1); document.getElementById('vol-slider').value = v; setVolume(v); }
+            if (e.code === 'KeyM') toggleMute();
+        });
+
+        const dz = document.getElementById('drop-zone');
+        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+        dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); handleFiles(e.dataTransfer.files); });
+        document.getElementById('file-input').addEventListener('change', e => handleFiles(e.target.files));
+
+        let _tt;
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg; el.classList.add('show');
+            clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2600);
+        }
+        function fmt(s) { if (!s || isNaN(s)) return '0:00'; return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`; }
+
+        (function init() {
+            const vol = parseFloat(localStorage.getItem('rfVol') || '0.75');
+            S.volume = vol;
+            document.getElementById('vol-slider').value = vol;
+            const savedTab = localStorage.getItem('rfTab') || 'default';
+            switchTab(savedTab, true);
+            renderExGrid(); renderDefList(); renderMyList();
+            const first = TRACKS[0];
+            document.getElementById('np-name').textContent = first.title;
+            document.getElementById('np-artist').textContent = first.artist;
+            document.getElementById('np-art').textContent = first.emoji;
+        })();
+    </script>
+</body>
+
+</html>
